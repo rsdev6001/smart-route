@@ -1,0 +1,3410 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartRoute — Charge Smarter. Drive Further.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --green: #1db87e;
+        --navy: #0f2b4c;
+        --blue: #00c2ff;
+        --mint: #f4f9f6;
+        --dark: #0d1f2d;
+        --muted: #6b7e8f;
+        --white: #ffffff;
+        --shadow: 0 8px 40px rgba(13, 31, 45, 0.1);
+        --shadow-lg: 0 20px 60px rgba(13, 31, 45, 0.18);
+        --radius: 14px;
+        --radius-pill: 999px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+        font-size: 16px;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        color: var(--dark);
+        background: var(--white);
+        overflow-x: hidden;
+      }
+      img {
+        max-width: 100%;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+      button {
+        cursor: pointer;
+        font-family: inherit;
+      }
+
+      /* ── UTILITY ── */
+      .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+      .section-tag {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--green);
+        margin-bottom: 0.6rem;
+      }
+      .section-title {
+        font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+        font-weight: 800;
+        line-height: 1.18;
+        color: var(--dark);
+      }
+      .section-title span {
+        color: var(--green);
+      }
+      .fade-in {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.65s ease,
+          transform 0.65s ease;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: none;
+      }
+
+      /* ── NAV ── */
+      #navbar {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 92%;
+        max-width: 1200px;
+        z-index: 1000;
+        background: var(--mint);
+        border-radius: 10px;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        box-shadow: 0 4px 24px rgba(13, 31, 45, 0.1);
+        transition:
+          box-shadow 0.3s,
+          background 0.3s,
+          backdrop-filter 0.3s;
+      }
+      #navbar.scrolled {
+        background: rgba(244, 249, 246, 0.82);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        box-shadow: 0 8px 40px rgba(13, 31, 45, 0.15);
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--dark);
+        white-space: nowrap;
+      }
+      .nav-logo svg {
+        flex-shrink: 0;
+      }
+      .nav-toggle-wrap {
+        display: flex;
+        align-items: center;
+        background: var(--white);
+        border-radius: var(--radius-pill);
+        padding: 4px;
+        gap: 2px;
+        box-shadow: 0 2px 8px rgba(13, 31, 45, 0.07);
+      }
+      .nav-tab {
+        padding: 6px 16px;
+        border-radius: var(--radius-pill);
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: none;
+        background: none;
+        color: var(--muted);
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          color 0.2s;
+        white-space: nowrap;
+      }
+      .nav-tab.active {
+        background: var(--green);
+        color: var(--white);
+      }
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .btn-ghost {
+        background: none;
+        border: 1.5px solid var(--navy);
+        color: var(--navy);
+        padding: 7px 18px;
+        border-radius: var(--radius-pill);
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+      .btn-ghost:hover {
+        background: var(--navy);
+        color: var(--white);
+      }
+      .btn-green {
+        background: var(--green);
+        border: none;
+        color: var(--white);
+        padding: 8px 20px;
+        border-radius: var(--radius-pill);
+        font-size: 0.875rem;
+        font-weight: 700;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .btn-green:hover {
+        transform: scale(1.03);
+        box-shadow: 0 6px 20px rgba(29, 184, 126, 0.35);
+      }
+      .btn-green:active {
+        transform: scale(0.98);
+      }
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        background: none;
+        border: none;
+        padding: 4px;
+      }
+      .hamburger span {
+        display: block;
+        width: 24px;
+        height: 2.5px;
+        background: var(--dark);
+        border-radius: 2px;
+        transition: all 0.3s;
+      }
+      .mobile-drawer {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px 0 6px;
+        border-top: 1px solid rgba(13, 31, 45, 0.08);
+        margin-top: 8px;
+      }
+      .mobile-drawer.open {
+        display: flex;
+      }
+      .mobile-drawer a,
+      .mobile-drawer button {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--dark);
+        background: none;
+        border: none;
+        text-align: left;
+        padding: 4px 0;
+      }
+
+      /* ── HERO ── */
+      #hero {
+        background: var(--mint);
+        padding: 140px 0 100px;
+        position: relative;
+        overflow: hidden;
+        clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%);
+      }
+      .hero-inner {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: center;
+      }
+      .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(29, 184, 126, 0.12);
+        border: 1px solid rgba(29, 184, 126, 0.3);
+        border-radius: var(--radius-pill);
+        padding: 5px 14px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        color: var(--green);
+        margin-bottom: 1.2rem;
+        text-transform: uppercase;
+      }
+      .hero-eyebrow::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+        animation: pulse 1.8s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(29, 184, 126, 0.5);
+        }
+        50% {
+          box-shadow: 0 0 0 6px rgba(29, 184, 126, 0);
+        }
+      }
+      .hero-h1 {
+        font-size: clamp(2.2rem, 5vw, 3.8rem);
+        font-weight: 900;
+        line-height: 1.1;
+        color: var(--dark);
+        margin-bottom: 1.2rem;
+      }
+      .hero-h1 .hl {
+        color: var(--green);
+      }
+      .hero-sub {
+        font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+        color: var(--muted);
+        line-height: 1.7;
+        max-width: 500px;
+        margin-bottom: 2rem;
+      }
+      .hero-ctas {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+      }
+      .btn-hero-primary {
+        background: var(--green);
+        color: var(--white);
+        border: none;
+        padding: 14px 28px;
+        border-radius: var(--radius-pill);
+        font-size: 1rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .btn-hero-primary:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 30px rgba(29, 184, 126, 0.4);
+      }
+      .btn-hero-secondary {
+        background: none;
+        color: var(--dark);
+        border: 2px solid rgba(13, 31, 45, 0.2);
+        padding: 14px 24px;
+        border-radius: var(--radius-pill);
+        font-size: 1rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition:
+          border-color 0.2s,
+          color 0.2s;
+      }
+      .btn-hero-secondary:hover {
+        border-color: var(--green);
+        color: var(--green);
+      }
+      .trust-row {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+      .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .trust-item svg {
+        flex-shrink: 0;
+      }
+      .trust-sep {
+        color: rgba(107, 126, 143, 0.3);
+        font-size: 1.2rem;
+      }
+
+      /* hero map SVG */
+      .hero-map-wrap {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .hero-map-bg {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: var(--shadow-lg);
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-map-bg::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(29, 184, 126, 0.04),
+          rgba(0, 194, 255, 0.04)
+        );
+      }
+
+      /* car animation handled by JS */
+
+      /* pin glow */
+      @keyframes pin-glow {
+        0%,
+        100% {
+          filter: drop-shadow(0 0 4px rgba(29, 184, 126, 0.6));
+        }
+        50% {
+          filter: drop-shadow(0 0 12px rgba(29, 184, 126, 1));
+        }
+      }
+      .pin-glow {
+        animation: pin-glow 2s ease-in-out infinite;
+      }
+      .pin-glow-blue {
+        animation: pin-glow-b 2.4s ease-in-out infinite 0.6s;
+      }
+      @keyframes pin-glow-b {
+        0%,
+        100% {
+          filter: drop-shadow(0 0 4px rgba(0, 194, 255, 0.6));
+        }
+        50% {
+          filter: drop-shadow(0 0 12px rgba(0, 194, 255, 1));
+        }
+      }
+
+      /* route draw */
+      .route-line {
+        stroke-dasharray: 400;
+        stroke-dashoffset: 400;
+        animation: draw-route 2.5s ease forwards 0.5s;
+      }
+      @keyframes draw-route {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* ── WIDGET ── */
+      #widget {
+        margin-top: -70px;
+        position: relative;
+        z-index: 10;
+        padding-bottom: 60px;
+      }
+      .widget-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 24px 80px rgba(13, 31, 45, 0.14);
+        padding: 32px 36px;
+      }
+      .widget-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 20px;
+      }
+      .widget-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+      .widget-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .widget-field label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .widget-field input,
+      .widget-field select {
+        border: 1.5px solid #e2eae6;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 0.93rem;
+        font-family: inherit;
+        color: var(--dark);
+        background: var(--mint);
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .widget-field input:focus,
+      .widget-field select:focus {
+        border-color: var(--green);
+      }
+      .slider-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .slider-wrap input[type="range"] {
+        flex: 1;
+        accent-color: var(--green);
+      }
+      .slider-val {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--green);
+        min-width: 42px;
+      }
+      .widget-field-full {
+        grid-column: 1/-1;
+      }
+      .btn-route {
+        width: 100%;
+        background: var(--green);
+        color: var(--white);
+        border: none;
+        border-radius: 12px;
+        padding: 15px;
+        font-size: 1rem;
+        font-weight: 700;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+        margin-bottom: 12px;
+      }
+      .btn-route:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(29, 184, 126, 0.38);
+      }
+      .widget-note {
+        font-size: 0.78rem;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      /* ── HOW IT WORKS ── */
+      #how {
+        background: var(--mint);
+        padding: 100px 0;
+      }
+      .how-header {
+        text-align: center;
+        margin-bottom: 60px;
+      }
+      .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+      .step-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 36px 28px;
+        position: relative;
+        overflow: hidden;
+        border-left: 4px solid var(--green);
+        box-shadow: var(--shadow);
+        transition:
+          transform 0.25s,
+          box-shadow 0.25s;
+      }
+      .step-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+      }
+      .step-num {
+        position: absolute;
+        top: 12px;
+        right: 18px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 4.5rem;
+        font-weight: 700;
+        color: rgba(29, 184, 126, 0.07);
+        line-height: 1;
+        user-select: none;
+      }
+      .step-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(29, 184, 126, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+      }
+      .step-card h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--dark);
+      }
+      .step-card p {
+        font-size: 0.9rem;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      /* ── FEATURES ── */
+      #features {
+        background: var(--white);
+        padding: 100px 0;
+      }
+      .features-header {
+        text-align: center;
+        margin-bottom: 60px;
+      }
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+      .feat-card {
+        background: var(--mint);
+        border-radius: var(--radius);
+        padding: 28px 24px;
+        border-left: 3px solid var(--green);
+        transition:
+          transform 0.25s,
+          box-shadow 0.25s,
+          background 0.2s;
+      }
+      .feat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        background: var(--white);
+      }
+      .feat-icon {
+        width: 46px;
+        height: 46px;
+        background: rgba(29, 184, 126, 0.12);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 14px;
+      }
+      .feat-card h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: var(--dark);
+      }
+      .feat-card p {
+        font-size: 0.87rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      /* ── MAP PREVIEW ── */
+      #map-preview {
+        background: var(--mint);
+        padding: 100px 0;
+      }
+      .map-inner {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+      }
+      .map-text h2 {
+        font-size: clamp(1.7rem, 3vw, 2.5rem);
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 1.2rem;
+        color: var(--dark);
+      }
+      .map-bullets {
+        list-style: none;
+        margin-bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .map-bullets li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.92rem;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .map-bullets li::before {
+        content: "";
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        background: rgba(29, 184, 126, 0.15);
+        border-radius: 50%;
+        border: 2px solid var(--green);
+        margin-top: 2px;
+      }
+      .btn-outline-green {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 2px solid var(--green);
+        color: var(--green);
+        background: none;
+        border-radius: var(--radius-pill);
+        padding: 11px 24px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+      .btn-outline-green:hover {
+        background: var(--green);
+        color: var(--white);
+      }
+      .map-mockup {
+        background: var(--white);
+        border-radius: 18px;
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+      }
+      .map-mockup svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      /* ── TESTIMONIALS ── */
+      #testimonials {
+        background: var(--white);
+        padding: 100px 0;
+      }
+      .testi-header {
+        text-align: center;
+        margin-bottom: 52px;
+      }
+      .testi-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 48px;
+      }
+      .testi-card {
+        background: var(--mint);
+        border-radius: var(--radius);
+        padding: 28px 24px;
+        border-left: 3px solid var(--green);
+        transition:
+          transform 0.25s,
+          box-shadow 0.25s;
+      }
+      .testi-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+      }
+      .stars {
+        display: flex;
+        gap: 3px;
+        margin-bottom: 14px;
+      }
+      .testi-card blockquote {
+        font-size: 0.91rem;
+        color: var(--dark);
+        line-height: 1.7;
+        margin-bottom: 16px;
+        font-style: italic;
+      }
+      .testi-author {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--green);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--white);
+        flex-shrink: 0;
+      }
+      .author-info {
+        font-size: 0.83rem;
+      }
+      .author-name {
+        font-weight: 700;
+        color: var(--dark);
+      }
+      .author-ev {
+        color: var(--muted);
+      }
+      .brand-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      }
+      .brand-tag {
+        padding: 7px 16px;
+        border-radius: var(--radius-pill);
+        border: 1.5px solid #d4e6dd;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+        transition:
+          border-color 0.2s,
+          color 0.2s;
+      }
+      .brand-tag:hover {
+        border-color: var(--green);
+        color: var(--green);
+      }
+      .brand-label {
+        font-size: 0.8rem;
+        color: var(--muted);
+        font-weight: 600;
+        margin-right: 4px;
+      }
+
+      /* ── STATS ── */
+      #stats {
+        position: relative;
+        padding: 90px 0;
+        background: linear-gradient(135deg, #1db87e, #00c2ff);
+      }
+      .stats-wave-top,
+      .stats-wave-bot {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        overflow: hidden;
+        line-height: 0;
+      }
+      .stats-wave-top {
+        top: -1px;
+      }
+      .stats-wave-bot {
+        bottom: -1px;
+        transform: scaleY(-1);
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+      .stat-item {
+      }
+      .stat-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: clamp(2.2rem, 4vw, 3rem);
+        font-weight: 700;
+        color: var(--white);
+        line-height: 1;
+      }
+      .stat-label {
+        font-size: 0.87rem;
+        color: rgba(255, 255, 255, 0.75);
+        margin-top: 6px;
+        font-weight: 500;
+      }
+
+      /* ── PRICING ── */
+      #pricing {
+        background: var(--white);
+        padding: 100px 0;
+      }
+      .pricing-header {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+      .billing-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 48px;
+      }
+      .billing-toggle span {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .billing-toggle span.active-label {
+        color: var(--dark);
+      }
+      .toggle-switch {
+        width: 52px;
+        height: 28px;
+        background: #cbd5e1;
+        border-radius: var(--radius-pill);
+        position: relative;
+        cursor: pointer;
+        transition: background 0.3s;
+        border: none;
+        flex-shrink: 0;
+      }
+      .toggle-switch.annual {
+        background: var(--green);
+      }
+      .toggle-knob {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 22px;
+        height: 22px;
+        background: var(--white);
+        border-radius: 50%;
+        transition: transform 0.3s;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      }
+      .toggle-switch.annual .toggle-knob {
+        transform: translateX(24px);
+      }
+      .discount-badge {
+        background: rgba(29, 184, 126, 0.12);
+        color: var(--green);
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: var(--radius-pill);
+      }
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        align-items: start;
+      }
+      .price-card {
+        border-radius: var(--radius);
+        padding: 32px 28px;
+        border: 1.5px solid #e2eae6;
+        position: relative;
+        transition:
+          transform 0.25s,
+          box-shadow 0.25s;
+      }
+      .price-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+      }
+      .price-card.popular {
+        border-color: var(--green);
+        background: linear-gradient(
+          160deg,
+          rgba(29, 184, 126, 0.04),
+          rgba(0, 194, 255, 0.04)
+        );
+      }
+      .popular-badge {
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--green);
+        color: var(--white);
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 16px;
+        border-radius: var(--radius-pill);
+        white-space: nowrap;
+      }
+      .price-plan {
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+      .price-amount {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 2.6rem;
+        font-weight: 700;
+        color: var(--dark);
+        line-height: 1;
+      }
+      .price-amount sup {
+        font-size: 1.1rem;
+        vertical-align: super;
+      }
+      .price-amount .period {
+        font-size: 0.9rem;
+        color: var(--muted);
+        font-family: "Inter", sans-serif;
+        font-weight: 500;
+      }
+      .price-desc {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin: 10px 0 20px;
+        line-height: 1.5;
+      }
+      .price-features {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        margin-bottom: 24px;
+      }
+      .price-features li {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 0.87rem;
+        color: var(--dark);
+      }
+      .check-icon {
+        width: 18px;
+        height: 18px;
+        background: rgba(29, 184, 126, 0.12);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .btn-price {
+        width: 100%;
+        border-radius: 10px;
+        padding: 13px;
+        font-size: 0.93rem;
+        font-weight: 700;
+        border: 2px solid var(--green);
+        color: var(--green);
+        background: none;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+      .btn-price:hover,
+      .price-card.popular .btn-price {
+        background: var(--green);
+        color: var(--white);
+      }
+
+      /* ── FAQ ── */
+      #faq {
+        background: var(--mint);
+        padding: 100px 0;
+      }
+      .faq-header {
+        text-align: center;
+        margin-bottom: 52px;
+      }
+      .faq-list {
+        max-width: 780px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .faq-item {
+        background: var(--white);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(13, 31, 45, 0.06);
+      }
+      .faq-q {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        background: none;
+        border: none;
+        font-size: 0.97rem;
+        font-weight: 600;
+        color: var(--dark);
+        cursor: pointer;
+        gap: 16px;
+        text-align: left;
+      }
+      .faq-icon {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(29, 184, 126, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition:
+          background 0.2s,
+          transform 0.3s;
+      }
+      .faq-item.open .faq-icon {
+        background: var(--green);
+        transform: rotate(45deg);
+      }
+      .faq-a {
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.4s ease,
+          padding 0.3s;
+      }
+      .faq-a p {
+        padding: 0 24px 20px;
+        font-size: 0.9rem;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+      .faq-item.open .faq-a {
+        max-height: 300px;
+      }
+
+      /* ── CTA BANNER ── */
+      #cta-banner {
+        background: var(--navy);
+        padding: 100px 0;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+      }
+      .cta-road {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        opacity: 0.15;
+      }
+      @keyframes road-scroll {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+      .road-moving {
+        animation: road-scroll 12s linear infinite;
+      }
+      .cta-banner-inner {
+        position: relative;
+        z-index: 1;
+      }
+      .cta-banner-inner h2 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 900;
+        color: var(--white);
+        margin-bottom: 0.8rem;
+        line-height: 1.15;
+      }
+      .cta-banner-inner p {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.65);
+        margin-bottom: 2rem;
+      }
+      .cta-email-row {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .cta-email-input {
+        padding: 13px 20px;
+        border-radius: var(--radius-pill);
+        border: none;
+        font-size: 0.93rem;
+        font-family: inherit;
+        width: 300px;
+        max-width: 100%;
+        outline: none;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+        color: var(--white);
+      }
+      .cta-email-input::placeholder {
+        color: rgba(255, 255, 255, 0.45);
+      }
+      .cta-email-input:focus {
+        border-color: var(--green);
+      }
+      .btn-cta-big {
+        background: var(--green);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-pill);
+        padding: 13px 30px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .btn-cta-big:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 30px rgba(29, 184, 126, 0.4);
+      }
+      .cta-or {
+        font-size: 0.82rem;
+        color: rgba(255, 255, 255, 0.4);
+      }
+      .btn-cta-outline {
+        margin-top: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: var(--white);
+        background: none;
+        border-radius: var(--radius-pill);
+        padding: 12px 28px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        transition: border-color 0.2s;
+      }
+      .btn-cta-outline:hover {
+        border-color: var(--green);
+      }
+
+      /* ── FOOTER ── */
+      footer {
+        background: var(--dark);
+        padding: 72px 0 0;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .footer-grid {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr 1fr 1fr;
+        gap: 40px;
+        margin-bottom: 52px;
+      }
+      .footer-brand {
+      }
+      .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--white);
+        margin-bottom: 12px;
+      }
+      .footer-tagline {
+        font-size: 0.87rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 18px;
+        line-height: 1.6;
+      }
+      .social-row {
+        display: flex;
+        gap: 12px;
+      }
+      .social-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, 0.07);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+      }
+      .social-btn:hover {
+        background: rgba(29, 184, 126, 0.25);
+      }
+      .footer-col h4 {
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 14px;
+      }
+      .footer-col ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .footer-col li a {
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.6);
+        transition: color 0.2s;
+      }
+      .footer-col li a:hover {
+        color: var(--green);
+      }
+      .footer-bar {
+        border-top: 1px solid rgba(255, 255, 255, 0.07);
+        padding: 20px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.35);
+      }
+      .footer-bar-links {
+        display: flex;
+        gap: 20px;
+      }
+      .footer-bar-links a {
+        color: rgba(255, 255, 255, 0.35);
+        transition: color 0.2s;
+      }
+      .footer-bar-links a:hover {
+        color: var(--green);
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 1024px) {
+        .features-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .pricing-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .footer-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 40px;
+        }
+      }
+      @media (max-width: 768px) {
+        #hero {
+          clip-path: none;
+          padding: 130px 0 80px;
+        }
+        .hero-inner {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+        .hero-sub {
+          max-width: 100%;
+        }
+        .trust-row {
+          justify-content: center;
+        }
+        .hero-map-wrap {
+          display: none;
+        }
+        .widget-grid {
+          grid-template-columns: 1fr;
+        }
+        .steps-grid {
+          grid-template-columns: 1fr;
+        }
+        .testi-grid {
+          grid-template-columns: 1fr;
+        }
+        .map-inner {
+          grid-template-columns: 1fr;
+        }
+        .pricing-grid {
+          grid-template-columns: 1fr;
+        }
+        .footer-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .hero-ctas {
+          justify-content: center;
+        }
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 480px) {
+        .nav-actions .btn-ghost {
+          display: none;
+        }
+        #navbar {
+          padding: 8px 14px;
+        }
+        .widget-card {
+          padding: 22px 18px;
+        }
+        .footer-grid {
+          grid-template-columns: 1fr;
+        }
+        .stats-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .cta-email-input {
+          width: 100%;
+        }
+        .cta-email-row {
+          flex-direction: column;
+          align-items: center;
+        }
+        .footer-bar {
+          flex-direction: column;
+          text-align: center;
+        }
+        .footer-bar-links {
+          justify-content: center;
+        }
+      }
+      @media (max-width: 768px) {
+        .hamburger {
+          display: flex;
+        }
+        .nav-actions {
+          display: none;
+        }
+        #navbar {
+          flex-wrap: wrap;
+        }
+        .nav-toggle-wrap {
+          order: -1;
+          flex: 1;
+          justify-content: center;
+        }
+        .mobile-drawer .btn-ghost,
+        .mobile-drawer .btn-green {
+          width: 100%;
+          text-align: center;
+          border-radius: var(--radius-pill);
+          padding: 10px;
+        }
+        .mobile-drawer .btn-green {
+          background: var(--green);
+          color: var(--white);
+          font-weight: 700;
+        }
+      }
+      .ai-badge {
+        color: #1a56db;
+        letter-spacing: 0.6px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ══ NAV ══ -->
+    <nav id="navbar">
+      <a href="#" class="nav-logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#1DB87E" />
+          <path d="M16 6L10 18h5l-1 8 7-12h-5l1-8z" fill="#fff" />
+        </svg>
+        SmartRoute
+      </a>
+      <div class="nav-toggle-wrap">
+        <button
+          class="nav-tab active"
+          id="tab-home"
+          onclick="handleTab('home')"
+        >
+          SmartRoute
+        </button>
+        <button class="nav-tab" id="tab-ai" onclick="handleTab('ai')">
+          SmartScale <span class="ai-badge">𝔸𝕀</span>
+        </button>
+      </div>
+      <div class="nav-actions">
+        <button class="btn-ghost">Log In</button>
+        <button class="btn-green">Get Started Free</button>
+      </div>
+      <button
+        class="hamburger"
+        id="hamburger"
+        onclick="toggleDrawer()"
+        aria-label="Menu"
+      >
+        <span></span><span></span><span></span>
+      </button>
+      <div class="mobile-drawer" id="mobile-drawer">
+        <button class="btn-ghost">Log In</button>
+        <button class="btn-green">Get Started Free</button>
+      </div>
+    </nav>
+
+    <!-- ══ HERO ══ -->
+    <section id="hero">
+      <div class="container">
+        <div class="hero-inner">
+          <div class="hero-text">
+            <div class="hero-eyebrow">Now in Beta — Invite Only</div>
+            <h1 class="hero-h1">
+              Find the Best EV Route,<br /><span class="hl"
+                >Charged at Every Stop.</span
+              >
+            </h1>
+            <p class="hero-sub">
+              SmartRoute maps the smartest path to your destination — optimized
+              for your EV's range and lined with compatible charging stations.
+            </p>
+            <div class="hero-ctas">
+              <a href="#widget" class="btn-hero-primary">Plan My Route →</a>
+              <button class="btn-hero-secondary">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <circle
+                    cx="9"
+                    cy="9"
+                    r="8.25"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                  <path d="M7 6l5 3-5 3V6z" fill="currentColor" />
+                </svg>
+                Watch Demo
+              </button>
+            </div>
+            <div class="trust-row">
+              <div class="trust-item">
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                  <path
+                    d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                    fill="#1DB87E"
+                  />
+                </svg>
+                <span>50,000+ Chargers Mapped</span>
+              </div>
+              <span class="trust-sep">|</span>
+              <div class="trust-item">
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                  <rect
+                    x="2"
+                    y="4"
+                    width="12"
+                    height="8"
+                    rx="2"
+                    stroke="#1DB87E"
+                    stroke-width="1.5"
+                    fill="none"
+                  />
+                  <path
+                    d="M5 4V3a1 1 0 012 0v1M9 4V3a1 1 0 012 0v1"
+                    stroke="#1DB87E"
+                    stroke-width="1.5"
+                  />
+                </svg>
+                <span>120+ EV Models Supported</span>
+              </div>
+              <span class="trust-sep">|</span>
+              <div class="trust-item">
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                  <path
+                    d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                    fill="#1DB87E"
+                  />
+                </svg>
+                <span class="mono">4.9★</span> App Store Rating
+              </div>
+            </div>
+          </div>
+          <div class="hero-map-wrap fade-in">
+            <div class="hero-map-bg">
+              <svg
+                width="400"
+                height="380"
+                viewBox="0 0 400 380"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <!-- grid roads -->
+                <g stroke="#E2EAE6" stroke-width="1.5" fill="none">
+                  <line x1="0" y1="80" x2="400" y2="80" />
+                  <line x1="0" y1="160" x2="400" y2="160" />
+                  <line x1="0" y1="240" x2="400" y2="240" />
+                  <line x1="0" y1="320" x2="400" y2="320" />
+                  <line x1="80" y1="0" x2="80" y2="380" />
+                  <line x1="160" y1="0" x2="160" y2="380" />
+                  <line x1="240" y1="0" x2="240" y2="380" />
+                  <line x1="320" y1="0" x2="320" y2="380" />
+                </g>
+                <!-- main route -->
+                <path
+                  class="route-line"
+                  d="M 60 320
+            C 180 360 80 210 200 210
+            C 320 210 260 120 340 110"
+                  stroke="#1DB87E"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                  fill="none"
+                />
+                <!-- shadow route -->
+                <path
+                  d="M 60 320
+            C 180 360 80 210 200 210
+            C 320 210 260 120 340 110"
+                  stroke="rgba(29,184,126,.15)"
+                  stroke-width="12"
+                  stroke-linecap="round"
+                  fill="none"
+                />
+
+                <!-- Charger Pin 1 — slightly above route (route y≈240 at x≈150, pin tip at y≈216) -->
+                <text
+                  x="120"
+                  y="190"
+                  font-family="Inter,sans-serif"
+                  font-size="8"
+                  font-weight="100"
+                  fill="#018f8c"
+                  text-anchor="middle"
+                >
+                  <tspan x="120" dy="0">Terra Charge ⚡</tspan>
+                </text>
+                <g class="pin-glow" transform="translate(115,216)">
+                  <path
+                    d="M0-10 C-6-10-10-5-10 0 C-10 7 0 14 0 14 C0 14 10 7 10 0 C10-5 6-10 0-10Z"
+                    fill="#1DB87E"
+                  />
+                  <path
+                    d="M0-7 L-2-2 h1.5 L-1.5 4 L2.5 4 L1-1 h1.5 L0-7Z"
+                    fill="white"
+                    transform="scale(.8)"
+                  />
+                </g>
+
+                <!-- Charger Pin 2 (blue) — slightly below route (route y≈168 at x≈240, pin tip at y≈192) -->
+                <g class="pin-glow-blue" transform="translate(238,225)">
+                  <path
+                    d="M0-10 C-6-10-10-5-10 0 C-10 7 0 14 0 14 C0 14 10 7 10 0 C10-5 6-10 0-10Z"
+                    fill="#00C2FF"
+                  />
+                  <path
+                    d="M0-7 L-2-2 h1.5 L-1.5 4 L2.5 4 L1-1 h1.5 L0-7Z"
+                    fill="white"
+                    transform="scale(.8)"
+                  />
+                </g>
+                <text
+                  x="245"
+                  y="260"
+                  font-family="Inter,sans-serif"
+                  font-size="8"
+                  font-weight="100"
+                  fill="#018f8c"
+                  text-anchor="middle"
+                >
+                  <tspan x="245" dy="0">Honda ⚡</tspan>
+                </text>
+
+                <!-- Charger Pin 3 — slightly above route (route y≈116 at x≈328, pin tip at y≈90) -->
+                <g class="pin-glow" transform="translate(300,90)">
+                  <path
+                    d="M0-10 C-6-10-10-5-10 0 C-10 7 0 14 0 14 C0 14 10 7 10 0 C10-5 6-10 0-10Z"
+                    fill="#1DB87E"
+                  />
+                  <path
+                    d="M0-7 L-2-2 h1.5 L-1.5 4 L2.5 4 L1-1 h1.5 L0-7Z"
+                    fill="white"
+                    transform="scale(.8)"
+                  />
+                </g>
+
+                <text
+                  x="300"
+                  y="70"
+                  font-family="Inter,sans-serif"
+                  font-size="8"
+                  font-weight="100"
+                  fill="#018f8c"
+                  text-anchor="middle"
+                >
+                  <tspan x="300" dy="0">Statiq ⚡</tspan>
+                </text>
+
+                <!-- Origin pin -->
+                <g transform="translate(60,320)">
+                  <circle cx="0" cy="-4" r="9" fill="#0F2B4C" />
+                  <circle cx="0" cy="-4" r="4" fill="white" />
+                  <circle cx="0" cy="6" r="3" fill="#0F2B4C" />
+                </g>
+
+                <!-- Destination pin -->
+                <g class="pin-glow" transform="translate(360,110)">
+                  <circle cx="0" cy="-4" r="9" fill="#00C2FF" />
+                </g>
+
+                <!-- Hidden path for car animation reference -->
+                <path
+                  id="carRoutePath"
+                  d="M 60 320
+C 180 360 80 210 200 210
+C 320 210 260 120 340 110"
+                  fill="none"
+                  stroke="none"
+                  visibility="hidden"
+                />
+                <!-- Animated car -->
+                <g id="heroCar">
+                  <!-- shadow -->
+                  <ellipse
+                    cx="0"
+                    cy="10"
+                    rx="15"
+                    ry="3"
+                    fill="rgba(0,0,0,0.15)"
+                  />
+
+                  <!-- car body -->
+                  <rect
+                    x="-15"
+                    y="-6"
+                    width="30"
+                    height="12"
+                    rx="4"
+                    fill="#0F2B4C"
+                  />
+
+                  <!-- curved roof -->
+                  <path
+                    d="M -9 -6 
+           C -7 -12 -3 -13 0 -13 
+           C 3 -13 7 -12 9 -6 
+           Z"
+                    fill="#1DB87E"
+                  />
+
+                  <!-- windshield -->
+                  <rect
+                    x="-4.8"
+                    y="-11"
+                    width="4.5"
+                    height="4.5"
+                    rx="1"
+                    fill="#DFF6FF"
+                  />
+                  <rect
+                    x="0.3"
+                    y="-11"
+                    width="4.5"
+                    height="4.5"
+                    rx="1"
+                    fill="#DFF6FF"
+                  />
+
+                  <!-- front highlight -->
+                  <rect
+                    x="4"
+                    y="-4"
+                    width="8"
+                    height="2"
+                    rx="1"
+                    fill="#1A4B7A"
+                    opacity="0.4"
+                  />
+
+                  <!-- headlights -->
+                  <rect
+                    x="14"
+                    y="-2.5"
+                    width="2"
+                    height="3"
+                    rx="1"
+                    fill="#FFE27A"
+                  />
+
+                  <!-- tail lights -->
+                  <rect
+                    x="-16"
+                    y="-2.5"
+                    width="2"
+                    height="3"
+                    rx="1"
+                    fill="#FF6B6B"
+                  />
+
+                  <!-- wheels -->
+                  <circle cx="-9" cy="6.5" r="4" fill="#222" />
+                  <circle cx="9" cy="6.5" r="4" fill="#222" />
+
+                  <!-- wheel rims -->
+                  <circle cx="-9" cy="6.5" r="2" fill="#AAB4BE" />
+                  <circle cx="9" cy="6.5" r="2" fill="#AAB4BE" />
+                </g>
+
+                <!-- Info callout -->
+                <g transform="translate(20,20)">
+                  <rect
+                    x="0"
+                    y="0"
+                    width="130"
+                    height="52"
+                    rx="10"
+                    fill="white"
+                    filter="url(#shadow1)"
+                  />
+                  <text
+                    x="12"
+                    y="20"
+                    font-family="Inter,sans-serif"
+                    font-size="10"
+                    font-weight="700"
+                    fill="#0D1F2D"
+                  >
+                    Next charger
+                  </text>
+                  <text
+                    x="12"
+                    y="36"
+                    font-family="JetBrains Mono,monospace"
+                    font-size="13"
+                    font-weight="700"
+                    fill="#1DB87E"
+                  >
+                    32 km away
+                  </text>
+                  <rect
+                    x="12"
+                    y="43"
+                    width="60"
+                    height="5"
+                    rx="2.5"
+                    fill="#E2EAE6"
+                  />
+                  <rect
+                    x="12"
+                    y="43"
+                    width="44"
+                    height="5"
+                    rx="2.5"
+                    fill="#1DB87E"
+                  />
+                </g>
+                <defs>
+                  <filter
+                    id="shadow1"
+                    x="-10%"
+                    y="-10%"
+                    width="120%"
+                    height="120%"
+                  >
+                    <feDropShadow
+                      dx="0"
+                      dy="2"
+                      stdDeviation="4"
+                      flood-color="rgba(13,31,45,.12)"
+                    />
+                  </filter>
+                </defs>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ WIDGET ══ -->
+    <section id="widget">
+      <div class="container">
+        <div class="widget-card fade-in">
+          <div class="widget-title">⚡ Plan Your Route</div>
+          <div class="widget-grid">
+            <div class="widget-field">
+              <label>From</label>
+              <input type="text" placeholder="New York, NY" />
+            </div>
+            <div class="widget-field">
+              <label>To</label>
+              <input type="text" placeholder="Boston, MA" />
+            </div>
+            <div class="widget-field">
+              <label>EV Model</label>
+              <select>
+                <option>Tesla Model 3</option>
+                <option>Tesla Model Y</option>
+                <option>Nissan Leaf</option>
+                <option>Rivian R1T</option>
+                <option>BMW iX</option>
+                <option>Hyundai Ioniq 6</option>
+                <option>Chevy Bolt</option>
+                <option>Ford Mustang Mach-E</option>
+              </select>
+            </div>
+            <div class="widget-field">
+              <label>Min Charger Rating</label>
+              <div class="slider-wrap">
+                <input
+                  type="range"
+                  min="50"
+                  max="350"
+                  value="150"
+                  id="kwSlider"
+                  oninput="
+                    document.getElementById('kwVal').textContent =
+                      this.value + 'kW'
+                  "
+                />
+                <span class="slider-val" id="kwVal">150kW</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn-route">⚡ Find Best Route</button>
+          <p class="widget-note">
+            Supports Tesla, Nissan Leaf, Rivian, BMW iX, Hyundai Ioniq, and 115
+            more models.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ HOW IT WORKS ══ -->
+    <section id="how">
+      <div class="container">
+        <div class="how-header fade-in">
+          <div class="section-tag">How It Works</div>
+          <h2 class="section-title">Get There. <span>Stay Charged.</span></h2>
+        </div>
+        <div class="steps-grid">
+          <div class="step-card fade-in">
+            <div class="step-num">01</div>
+            <div class="step-icon">
+              <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                <path
+                  d="M13 2C9 2 6 5.5 6 9.5c0 5.5 7 13.5 7 13.5s7-8 7-13.5C20 5.5 17 2 13 2z"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  fill="none"
+                />
+                <circle
+                  cx="13"
+                  cy="9.5"
+                  r="2.5"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                />
+              </svg>
+            </div>
+            <h3>Enter Your Route</h3>
+            <p>
+              Type your origin and destination. SmartRoute instantly understands
+              your journey and starts computing the optimal path for your EV.
+            </p>
+          </div>
+          <div class="step-card fade-in">
+            <div class="step-num">02</div>
+            <div class="step-icon">
+              <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                <circle
+                  cx="13"
+                  cy="13"
+                  r="10"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  fill="none"
+                />
+                <circle
+                  cx="13"
+                  cy="13"
+                  r="6"
+                  stroke="#1DB87E"
+                  stroke-width="1.5"
+                  stroke-dasharray="3 2"
+                  fill="none"
+                />
+                <circle cx="13" cy="13" r="2" fill="#1DB87E" />
+              </svg>
+            </div>
+            <h3>We Scan the Grid</h3>
+            <p>
+              Our engine queries real-time data from 50,000+ charging stations —
+              checking availability, connector types, and charging speeds along
+              your route.
+            </p>
+          </div>
+          <div class="step-card fade-in">
+            <div class="step-num">03</div>
+            <div class="step-icon">
+              <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                <path
+                  d="M13 3C7.5 3 3 7.5 3 13s4.5 10 10 10 10-4.5 10-10S18.5 3 13 3z"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  fill="none"
+                />
+                <path
+                  d="M9 13l3 3 5-6"
+                  stroke="#1DB87E"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <h3>Drive with Confidence</h3>
+            <p>
+              Get turn-by-turn navigation with charger stops baked in. Know
+              exactly where to stop, how long to charge, and arrive at your
+              destination worry-free.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FEATURES ══ -->
+    <section id="features">
+      <div class="container">
+        <div class="features-header fade-in">
+          <div class="section-tag">Features</div>
+          <h2 class="section-title">
+            Everything Your EV <span>Needs on the Road</span>
+          </h2>
+        </div>
+        <div class="features-grid">
+          <div class="feat-card fade-in">
+            <div class="feat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="3" fill="#1DB87E" />
+                <path
+                  d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M16.9 16.9l2.1 2.1M4.9 19.1l2.1-2.1M16.9 7.1l2.1-2.1"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <h3>Real-Time Charger Availability</h3>
+            <p>
+              See live status of every charger on your route — available,
+              occupied, or offline — before you arrive.
+            </p>
+          </div>
+          <div class="feat-card fade-in">
+            <div class="feat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M9 3H5a2 2 0 00-2 2v4M9 3h6M9 3v18m6-18H19a2 2 0 012 2v4M15 3v18M3 9h18M3 15h18"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <h3>Plug Type Matching</h3>
+            <p>
+              Auto-detects your EV's connector type — CCS, CHAdeMO, Type 2, or
+              Tesla — and filters chargers accordingly.
+            </p>
+          </div>
+          <div class="feat-card fade-in">
+            <div class="feat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M13 2L4.5 13.5H11L10 22l8.5-11.5H13L13 2z"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  stroke-linejoin="round"
+                  fill="none"
+                />
+              </svg>
+            </div>
+            <h3>Range-Aware Routing</h3>
+            <p>
+              Input your current battery percentage and let SmartRoute factor in
+              real range to plan stops perfectly.
+            </p>
+          </div>
+          <div class="feat-card fade-in">
+            <div class="feat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 2v10l4 4"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="9"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  fill="none"
+                />
+              </svg>
+            </div>
+            <h3>Fastest vs. Cheapest Toggle</h3>
+            <p>
+              Prioritize speed or savings. Toggle between fastest-charge routing
+              and lowest-cost route options instantly.
+            </p>
+          </div>
+          <div class="feat-card fade-in">
+            <div class="feat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  fill="none"
+                />
+                <path
+                  d="M17 2l5 5-5 5"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M22 7h-7"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <h3>Offline Maps</h3>
+            <p>
+              Download your complete route and charger data ahead of time for
+              areas with limited connectivity.
+            </p>
+          </div>
+          <div class="feat-card fade-in">
+            <div class="feat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <rect
+                  x="2"
+                  y="3"
+                  width="20"
+                  height="14"
+                  rx="2"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  fill="none"
+                />
+                <path
+                  d="M8 21h8M12 17v4"
+                  stroke="#1DB87E"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <h3>Fleet Mode</h3>
+            <p>
+              Manage routes for multiple EVs simultaneously. Assign drivers,
+              track progress, and optimize fleet efficiency.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ MAP PREVIEW ══ -->
+    <section id="map-preview">
+      <div class="container">
+        <div class="map-inner">
+          <div class="map-text fade-in">
+            <div class="section-tag">Live Map</div>
+            <h2>
+              See Every Charger.<br /><span style="color: var(--green)"
+                >Plan Every Mile.</span
+              >
+            </h2>
+            <ul class="map-bullets">
+              <li>Interactive map with 50,000+ verified charging locations</li>
+              <li>
+                Color-coded status: green (available), yellow (busy), gray
+                (offline)
+              </li>
+              <li>
+                Filter by plug type, minimum kW, network provider, and amenities
+              </li>
+              <li>Real-time ETA and charge level forecast at each waypoint</li>
+            </ul>
+            <a href="#" class="btn-outline-green">Explore the Map →</a>
+          </div>
+          <div class="map-mockup fade-in">
+            <svg
+              width="100%"
+              height="auto"
+              viewBox="0 0 480 360"
+              xmlns="http://www.w3.org/2000/svg"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <!-- map bg -->
+              <image
+                href="assets/images/ev_route.png"
+                x="120"
+                y="0"
+                width="360"
+                height="360"
+                preserveAspectRatio="xMidYMid slice"
+              />
+              <!-- sidebar -->
+              <rect
+                x="0"
+                y="0"
+                width="120"
+                height="360"
+                fill="white"
+                opacity=".95"
+              />
+              <text
+                x="12"
+                y="22"
+                font-family="Inter,sans-serif"
+                font-size="10"
+                font-weight="800"
+                fill="#0D1F2D"
+              >
+                Upcoming Stops
+              </text>
+              <!-- stop 1 -->
+              <g transform="translate(0,32)">
+                <rect
+                  x="8"
+                  y="0"
+                  width="104"
+                  height="72"
+                  rx="8"
+                  fill="#F4F9F6"
+                />
+                <rect
+                  x="8"
+                  y="0"
+                  width="3"
+                  height="72"
+                  rx="1.5"
+                  fill="#1DB87E"
+                />
+                <circle cx="26" cy="16" r="7" fill="rgba(29,184,126,.15)" />
+                <path
+                  d="M26 11L23 17h2L24 22 29 22 27 16h2L26 11Z"
+                  fill="#1DB87E"
+                />
+                <text
+                  x="38"
+                  y="14"
+                  font-family="Inter,sans-serif"
+                  font-size="9"
+                  font-weight="700"
+                  fill="#0D1F2D"
+                >
+                  Terra V1
+                </text>
+                <text
+                  x="38"
+                  y="26"
+                  font-family="JetBrains Mono,monospace"
+                  font-size="8"
+                  fill="#1DB87E"
+                >
+                  32 km · 18 min
+                </text>
+                <text
+                  x="12"
+                  y="43"
+                  font-family="Inter,sans-serif"
+                  font-size="7.5"
+                  fill="#6B7E8F"
+                >
+                  ETA: 2:34 PM · 250 kW
+                </text>
+                <rect
+                  x="12"
+                  y="50"
+                  width="90"
+                  height="6"
+                  rx="3"
+                  fill="#E2EAE6"
+                />
+                <rect
+                  x="12"
+                  y="50"
+                  width="68"
+                  height="6"
+                  rx="3"
+                  fill="#1DB87E"
+                />
+                <text
+                  x="12"
+                  y="68"
+                  font-family="Inter,sans-serif"
+                  font-size="7"
+                  fill="#6B7E8F"
+                >
+                  Battery on arrival: 18%
+                </text>
+              </g>
+              <!-- stop 2 -->
+              <g transform="translate(0,116)">
+                <rect
+                  x="8"
+                  y="0"
+                  width="104"
+                  height="68"
+                  rx="8"
+                  fill="#F4F9F6"
+                />
+                <rect
+                  x="8"
+                  y="0"
+                  width="3"
+                  height="68"
+                  rx="1.5"
+                  fill="#00C2FF"
+                />
+                <circle cx="26" cy="16" r="7" fill="rgba(0,194,255,.15)" />
+                <path
+                  d="M26 11L23 17h2L24 22 29 22 27 16h2L26 11Z"
+                  fill="#00C2FF"
+                />
+                <text
+                  x="38"
+                  y="14"
+                  font-family="Inter,sans-serif"
+                  font-size="9"
+                  font-weight="700"
+                  fill="#0D1F2D"
+                >
+                  Statiq V2
+                </text>
+                <text
+                  x="38"
+                  y="26"
+                  font-family="JetBrains Mono,monospace"
+                  font-size="8"
+                  fill="#00C2FF"
+                >
+                  89 km · 51 min
+                </text>
+                <text
+                  x="12"
+                  y="42"
+                  font-family="Inter,sans-serif"
+                  font-size="7.5"
+                  fill="#6B7E8F"
+                >
+                  ETA: 3:28 PM · 150 kW
+                </text>
+                <rect
+                  x="12"
+                  y="48"
+                  width="90"
+                  height="6"
+                  rx="3"
+                  fill="#E2EAE6"
+                />
+                <rect
+                  x="12"
+                  y="48"
+                  width="30"
+                  height="6"
+                  rx="3"
+                  fill="#00C2FF"
+                />
+                <text
+                  x="12"
+                  y="64"
+                  font-family="Inter,sans-serif"
+                  font-size="7"
+                  fill="#6B7E8F"
+                >
+                  Battery on arrival: 9%
+                </text>
+              </g>
+              <!-- stop 3 -->
+              <g transform="translate(0,196)">
+                <rect
+                  x="8"
+                  y="0"
+                  width="104"
+                  height="68"
+                  rx="8"
+                  fill="#F4F9F6"
+                  opacity=".7"
+                />
+                <rect
+                  x="8"
+                  y="0"
+                  width="3"
+                  height="68"
+                  rx="1.5"
+                  fill="#1DB87E"
+                  opacity=".5"
+                />
+                <circle cx="26" cy="16" r="7" fill="rgba(29,184,126,.08)" />
+                <path
+                  d="M26 11L23 17h2L24 22 29 22 27 16h2L26 11Z"
+                  fill="rgba(29,184,126,.5)"
+                />
+                <text
+                  x="38"
+                  y="14"
+                  font-family="Inter,sans-serif"
+                  font-size="9"
+                  font-weight="700"
+                  fill="#6B7E8F"
+                >
+                  ChargePoint
+                </text>
+                <text
+                  x="38"
+                  y="26"
+                  font-family="JetBrains Mono,monospace"
+                  font-size="8"
+                  fill="#6B7E8F"
+                >
+                  142 km · 1h 22m
+                </text>
+                <text
+                  x="12"
+                  y="42"
+                  font-family="Inter,sans-serif"
+                  font-size="7.5"
+                  fill="#6B7E8F"
+                >
+                  ETA: 4:52 PM · 100 kW
+                </text>
+                <rect
+                  x="12"
+                  y="48"
+                  width="90"
+                  height="6"
+                  rx="3"
+                  fill="#E2EAE6"
+                />
+                <rect
+                  x="12"
+                  y="48"
+                  width="18"
+                  height="6"
+                  rx="3"
+                  fill="#1DB87E"
+                  opacity=".5"
+                />
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ TESTIMONIALS ══ -->
+    <section id="testimonials">
+      <div class="container">
+        <div class="testi-header fade-in">
+          <div class="section-tag">Testimonials</div>
+          <h2 class="section-title">
+            Trusted by EV Drivers <span>Everywhere</span>
+          </h2>
+        </div>
+        <div class="testi-grid">
+          <div class="testi-card fade-in">
+            <div class="stars">
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+            </div>
+            <blockquote>
+              "Drove from LA to San Francisco with zero range anxiety for the
+              first time ever. SmartRoute knew exactly where to stop, and every
+              charger was available. Absolutely game-changing."
+            </blockquote>
+            <div class="testi-author">
+              <div class="avatar">MK</div>
+              <div class="author-info">
+                <div class="author-name">Marcus Kim</div>
+                <div class="author-ev">Tesla Model 3 Long Range</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card fade-in">
+            <div class="stars">
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+            </div>
+            <blockquote>
+              "The plug-type matching alone saved our family road trip. Our
+              Ioniq 6 needs specific chargers and SmartRoute filtered everything
+              automatically. The kids didn't even notice the stops."
+            </blockquote>
+            <div class="testi-author">
+              <div class="avatar" style="background: #00c2ff">SP</div>
+              <div class="author-info">
+                <div class="author-name">Sarah Patel</div>
+                <div class="author-ev">Hyundai Ioniq 6</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card fade-in">
+            <div class="stars">
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+              <svg width="16" height="16" viewBox="0 0 16 16">
+                <path
+                  d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z"
+                  fill="#1DB87E"
+                />
+              </svg>
+            </div>
+            <blockquote>
+              "We manage a fleet of 12 Rivians. SmartRoute's Fleet Mode paid for
+              itself in the first week — optimized routes for every driver,
+              real-time tracking, and zero charger conflicts."
+            </blockquote>
+            <div class="testi-author">
+              <div class="avatar" style="background: #0f2b4c">JR</div>
+              <div class="author-info">
+                <div class="author-name">James Rodriguez</div>
+                <div class="author-ev">
+                  Rivian R1T Fleet · Operations Manager
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="brand-row fade-in">
+          <span class="brand-label">Works with:</span>
+          <span class="brand-tag">Tesla</span>
+          <span class="brand-tag">Rivian</span>
+          <span class="brand-tag">Hyundai</span>
+          <span class="brand-tag">BMW</span>
+          <span class="brand-tag">Nissan</span>
+          <span class="brand-tag">Chevrolet</span>
+          <span class="brand-tag">Ford</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ STATS ══ -->
+    <section id="stats">
+      <div class="stats-wave-top">
+        <svg
+          viewBox="0 0 1440 50"
+          preserveAspectRatio="none"
+          style="height: 50px; display: block"
+        >
+          <path d="M0,50 C360,0 1080,0 1440,50 L1440,0 L0,0 Z" fill="white" />
+        </svg>
+      </div>
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item fade-in">
+            <div class="stat-num mono" data-target="180" data-suffix="+">
+              0+
+            </div>
+            <div class="stat-label">Countries Covered</div>
+          </div>
+          <div class="stat-item fade-in">
+            <div class="stat-num mono" data-target="52000" data-suffix="+">
+              0+
+            </div>
+            <div class="stat-label">Charging Stations</div>
+          </div>
+          <div class="stat-item fade-in">
+            <div class="stat-num mono" data-target="2100000" data-suffix="+">
+              0+
+            </div>
+            <div class="stat-label">Routes Planned</div>
+          </div>
+          <div class="stat-item fade-in">
+            <div class="stat-num mono" data-static="4.9★">4.9★</div>
+            <div class="stat-label">Average Rating</div>
+          </div>
+        </div>
+      </div>
+      <div class="stats-wave-bot">
+        <svg
+          viewBox="0 0 1440 50"
+          preserveAspectRatio="none"
+          style="height: 50px; display: block"
+        >
+          <path d="M0,50 C360,0 1080,0 1440,50 L1440,0 L0,0 Z" fill="white" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- ══ PRICING ══ -->
+    <section id="pricing">
+      <div class="container">
+        <div class="pricing-header fade-in">
+          <div class="section-tag">Pricing</div>
+          <h2 class="section-title">
+            Simple Pricing. <span>No Range Anxiety.</span>
+          </h2>
+        </div>
+        <div class="billing-toggle fade-in">
+          <span id="label-monthly" class="active-label">Monthly</span>
+          <button
+            class="toggle-switch"
+            id="billingToggle"
+            onclick="toggleBilling()"
+            aria-label="Toggle billing"
+          >
+            <div class="toggle-knob"></div>
+          </button>
+          <span id="label-annual">Annual</span>
+          <span class="discount-badge" id="discount-badge" style="opacity: 0"
+            >Save 20%</span
+          >
+        </div>
+        <div class="pricing-grid">
+          <!-- Free -->
+          <div class="price-card fade-in">
+            <div class="price-plan">Free</div>
+            <div class="price-amount">
+              <sup>$</sup>0<span class="period">/mo</span>
+            </div>
+            <div class="price-desc">
+              Perfect for getting started with EV routing.
+            </div>
+            <ul class="price-features">
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Basic route planning
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >5 routes per day
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Standard charger data
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >30+ EV models
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Community support
+              </li>
+            </ul>
+            <button class="btn-price">Get Started Free</button>
+          </div>
+          <!-- Pro -->
+          <div class="price-card popular fade-in">
+            <div class="popular-badge">Most Popular</div>
+            <div class="price-plan">Pro</div>
+            <div class="price-amount">
+              <sup>$</sup><span class="price-monthly">9.99</span
+              ><span class="price-annual" style="display: none">7.99</span
+              ><span class="period">/mo</span>
+            </div>
+            <div class="price-desc">
+              For serious EV drivers who road trip regularly.
+            </div>
+            <ul class="price-features">
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Unlimited routes
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Real-time availability
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Offline maps
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >120+ EV models
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Fastest vs. cheapest toggle
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Priority support
+              </li>
+            </ul>
+            <button class="btn-price">Start Pro Trial →</button>
+          </div>
+          <!-- Fleet -->
+          <div class="price-card fade-in">
+            <div class="price-plan">Fleet</div>
+            <div class="price-amount" style="font-size: 2rem">Custom</div>
+            <div class="price-desc">
+              Tailored solutions for businesses managing multiple EVs.
+            </div>
+            <ul class="price-features">
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Multi-vehicle management
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Full API access
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Dedicated account manager
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Custom integrations
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >SLA guarantees
+              </li>
+              <li>
+                <span class="check-icon"
+                  ><svg width="10" height="10" viewBox="0 0 10 10">
+                    <path
+                      d="M2 5l2.5 2.5L8 3"
+                      stroke="#1DB87E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      fill="none"
+                    /></svg></span
+                >Priority onboarding
+              </li>
+            </ul>
+            <button class="btn-price">Contact Sales</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FAQ ══ -->
+    <section id="faq">
+      <div class="container">
+        <div class="faq-header fade-in">
+          <div class="section-tag">FAQ</div>
+          <h2 class="section-title">Common <span>Questions</span></h2>
+        </div>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              Which EV models does SmartRoute support?
+              <span class="faq-icon"
+                ><svg width="12" height="12" viewBox="0 0 12 12">
+                  <path
+                    d="M6 2v8M2 6h8"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  /></svg
+              ></span>
+            </button>
+            <div class="faq-a">
+              <p>
+                SmartRoute supports 120+ electric vehicle models from Tesla,
+                Rivian, Hyundai, BMW, Nissan, Chevrolet, Ford, Kia, Volkswagen,
+                Audi, and more. Free plans include 30+ popular models; Pro and
+                Fleet plans unlock the full library including newer models as
+                they launch.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              Which charging networks does SmartRoute partner with?
+              <span class="faq-icon"
+                ><svg width="12" height="12" viewBox="0 0 12 12">
+                  <path
+                    d="M6 2v8M2 6h8"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  /></svg
+              ></span>
+            </button>
+            <div class="faq-a">
+              <p>
+                We aggregate data from Tesla Supercharger, EVgo, ChargePoint,
+                Electrify America, Blink, Shell Recharge, and dozens of regional
+                networks across 180+ countries. Our data is sourced directly via
+                API integrations and community verification.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              Can I use SmartRoute without an internet connection?
+              <span class="faq-icon"
+                ><svg width="12" height="12" viewBox="0 0 12 12">
+                  <path
+                    d="M6 2v8M2 6h8"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  /></svg
+              ></span>
+            </button>
+            <div class="faq-a">
+              <p>
+                Yes — Pro and Fleet users can download their route and all
+                charger data ahead of time. Offline mode includes turn-by-turn
+                navigation and charger details. Note that real-time availability
+                status requires a connection; offline mode uses last-known
+                status data.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              Can I cancel my subscription at any time?
+              <span class="faq-icon"
+                ><svg width="12" height="12" viewBox="0 0 12 12">
+                  <path
+                    d="M6 2v8M2 6h8"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  /></svg
+              ></span>
+            </button>
+            <div class="faq-a">
+              <p>
+                Absolutely. You can cancel your Pro or Fleet subscription at any
+                time from your account settings. Monthly plans end at the
+                current billing period. Annual plans are cancelable with
+                prorated refunds within 30 days of renewal; otherwise access
+                continues through the paid period.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              How accurate is the charger availability data?
+              <span class="faq-icon"
+                ><svg width="12" height="12" viewBox="0 0 12 12">
+                  <path
+                    d="M6 2v8M2 6h8"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  /></svg
+              ></span>
+            </button>
+            <div class="faq-a">
+              <p>
+                Our real-time data is refreshed every 60 seconds via direct
+                network APIs for supported stations. For networks without API
+                access, we use a machine-learning model trained on historical
+                usage patterns to predict availability. Overall accuracy is ~94%
+                for real-time status and ~89% for availability predictions.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">
+              How does Fleet pricing work?
+              <span class="faq-icon"
+                ><svg width="12" height="12" viewBox="0 0 12 12">
+                  <path
+                    d="M6 2v8M2 6h8"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  /></svg
+              ></span>
+            </button>
+            <div class="faq-a">
+              <p>
+                Fleet pricing is custom-quoted based on the number of vehicles,
+                usage volume, required integrations, and support level. Most
+                Fleet customers with 5–50 vehicles pay between $50–$500/month.
+                Contact our sales team for a tailored quote — we typically
+                respond within one business day.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CTA BANNER ══ -->
+    <section id="cta-banner">
+      <div class="cta-road">
+        <svg
+          class="road-moving"
+          viewBox="0 0 2880 80"
+          height="80"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+        >
+          <rect width="2880" height="80" fill="none" />
+          <line
+            x1="0"
+            y1="40"
+            x2="2880"
+            y2="40"
+            stroke="rgba(255,255,255,.4)"
+            stroke-width="2"
+          />
+          <g fill="rgba(255,255,255,.5)">
+            <rect x="0" y="37" width="60" height="6" rx="3" />
+            <rect x="120" y="37" width="60" height="6" rx="3" />
+            <rect x="240" y="37" width="60" height="6" rx="3" />
+            <rect x="360" y="37" width="60" height="6" rx="3" />
+            <rect x="480" y="37" width="60" height="6" rx="3" />
+            <rect x="600" y="37" width="60" height="6" rx="3" />
+            <rect x="720" y="37" width="60" height="6" rx="3" />
+            <rect x="840" y="37" width="60" height="6" rx="3" />
+            <rect x="960" y="37" width="60" height="6" rx="3" />
+            <rect x="1080" y="37" width="60" height="6" rx="3" />
+            <rect x="1200" y="37" width="60" height="6" rx="3" />
+            <rect x="1320" y="37" width="60" height="6" rx="3" />
+            <rect x="1440" y="37" width="60" height="6" rx="3" />
+            <rect x="1560" y="37" width="60" height="6" rx="3" />
+            <rect x="1680" y="37" width="60" height="6" rx="3" />
+            <rect x="1800" y="37" width="60" height="6" rx="3" />
+            <rect x="1920" y="37" width="60" height="6" rx="3" />
+            <rect x="2040" y="37" width="60" height="6" rx="3" />
+            <rect x="2160" y="37" width="60" height="6" rx="3" />
+            <rect x="2280" y="37" width="60" height="6" rx="3" />
+            <rect x="2400" y="37" width="60" height="6" rx="3" />
+            <rect x="2520" y="37" width="60" height="6" rx="3" />
+            <rect x="2640" y="37" width="60" height="6" rx="3" />
+            <rect x="2760" y="37" width="60" height="6" rx="3" />
+          </g>
+        </svg>
+      </div>
+      <div class="container cta-banner-inner fade-in">
+        <h2>Your Next Road Trip<br />Starts Here.</h2>
+        <p>Join 200,000+ EV drivers who never worry about range anxiety.</p>
+        <div class="cta-email-row">
+          <input
+            type="email"
+            class="cta-email-input"
+            placeholder="Enter your email address"
+          />
+          <button class="btn-cta-big">Start Routing for Free →</button>
+        </div>
+        <div class="cta-or">or</div>
+        <button class="btn-cta-outline">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle
+              cx="9"
+              cy="9"
+              r="8.25"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path d="M7 6l5 3-5 3V6z" fill="currentColor" />
+          </svg>
+          Watch the Demo First
+        </button>
+      </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <div class="footer-logo">
+              <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                <rect width="32" height="32" rx="8" fill="#1DB87E" />
+                <path d="M16 6L10 18h5l-1 8 7-12h-5l1-8z" fill="#fff" />
+              </svg>
+              SmartRoute
+            </div>
+            <p class="footer-tagline">
+              Charge Smarter. Drive Further.<br />The intelligent EV route
+              planner for every journey.
+            </p>
+            <div class="social-row">
+              <!-- Twitter/X -->
+              <a href="#" class="social-btn" aria-label="X / Twitter">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M12.6 1h2.5L9.7 7.2 16 15h-4.7L7.7 10 3 15H.5l5.8-6.6L0 1h4.8l3.3 4.4L12.6 1zm-.9 12.5h1.4L4.4 2.5H2.9l8.8 11z"
+                    fill="rgba(255,255,255,.6)"
+                  />
+                </svg>
+              </a>
+              <!-- LinkedIn -->
+              <a href="#" class="social-btn" aria-label="LinkedIn">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M2 3.5A1.5 1.5 0 103.5 2 1.5 1.5 0 002 3.5zM2.5 6H4.5v8H2.5V6zM6 6H8v1.1C8.5 6.4 9.4 6 10.3 6 12.3 6 13.5 7.2 13.5 9.3V14h-2V9.7c0-.9-.4-1.7-1.4-1.7S8.5 8.8 8.5 10V14H6.5V6H6z"
+                    fill="rgba(255,255,255,.6)"
+                  />
+                </svg>
+              </a>
+              <!-- Instagram -->
+              <a href="#" class="social-btn" aria-label="Instagram">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect
+                    x="2"
+                    y="2"
+                    width="12"
+                    height="12"
+                    rx="3"
+                    stroke="rgba(255,255,255,.6)"
+                    stroke-width="1.5"
+                  />
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="3"
+                    stroke="rgba(255,255,255,.6)"
+                    stroke-width="1.5"
+                  />
+                  <circle
+                    cx="11.5"
+                    cy="4.5"
+                    r="1"
+                    fill="rgba(255,255,255,.6)"
+                  />
+                </svg>
+              </a>
+              <!-- YouTube -->
+              <a href="#" class="social-btn" aria-label="YouTube">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect
+                    x="1"
+                    y="3"
+                    width="14"
+                    height="10"
+                    rx="3"
+                    stroke="rgba(255,255,255,.6)"
+                    stroke-width="1.5"
+                  />
+                  <path d="M6.5 6l4 2-4 2V6z" fill="rgba(255,255,255,.6)" />
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="footer-col">
+            <h4>Product</h4>
+            <ul>
+              <li><a href="#">Route Planner</a></li>
+              <li><a href="#">Charger Map</a></li>
+              <li><a href="#">Fleet Mode</a></li>
+              <li><a href="#">Offline Maps</a></li>
+              <li><a href="#">API Docs</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Company</h4>
+            <ul>
+              <li><a href="#">About Us</a></li>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Careers</a></li>
+              <li><a href="#">Press</a></li>
+              <li><a href="#">Partners</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">System Status</a></li>
+              <li><a href="#">Community</a></li>
+              <li><a href="#">Charger Issues</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bar">
+          <span>© 2025 SmartRoute, Inc. All rights reserved.</span>
+          <div class="footer-bar-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Cookie Settings</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // ── NAV ──
+      const navbar = document.getElementById("navbar");
+      window.addEventListener("scroll", () => {
+        navbar.classList.toggle("scrolled", window.scrollY > 20);
+      });
+
+      function toggleDrawer() {
+        const d = document.getElementById("mobile-drawer");
+        d.classList.toggle("open");
+      }
+
+      function handleTab(tab) {
+        if (tab === "ai") {
+          window.open("https://google.com/", "_blank");
+          return;
+        }
+        document.getElementById("tab-home").classList.add("active");
+        document.getElementById("tab-ai").classList.remove("active");
+      }
+
+      // ── SCROLL ANIMATIONS ──
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("visible");
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+
+      document
+        .querySelectorAll(".fade-in")
+        .forEach((el) => observer.observe(el));
+
+      // ── FAQ ──
+      function toggleFaq(btn) {
+        const item = btn.closest(".faq-item");
+        const isOpen = item.classList.contains("open");
+        document
+          .querySelectorAll(".faq-item")
+          .forEach((i) => i.classList.remove("open"));
+        if (!isOpen) item.classList.add("open");
+      }
+
+      // ── BILLING TOGGLE ──
+      let isAnnual = false;
+      function toggleBilling() {
+        isAnnual = !isAnnual;
+        const toggle = document.getElementById("billingToggle");
+        toggle.classList.toggle("annual", isAnnual);
+        document
+          .getElementById("label-monthly")
+          .classList.toggle("active-label", !isAnnual);
+        document
+          .getElementById("label-annual")
+          .classList.toggle("active-label", isAnnual);
+        document.getElementById("discount-badge").style.opacity = isAnnual
+          ? "1"
+          : "0";
+        document
+          .querySelectorAll(".price-monthly")
+          .forEach((el) => (el.style.display = isAnnual ? "none" : ""));
+        document
+          .querySelectorAll(".price-annual")
+          .forEach((el) => (el.style.display = isAnnual ? "" : "none"));
+      }
+
+      // ── STATS COUNT-UP ──
+      function formatNum(n) {
+        if (n >= 1000000) return (n / 1000000).toFixed(1) + "M";
+        if (n >= 1000) return Math.round(n / 1000) + "K";
+        return Math.round(n).toString();
+      }
+
+      const statsObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              const el = e.target;
+              if (el.dataset.static) return;
+              const target = +el.dataset.target;
+              const suffix = el.dataset.suffix || "";
+              const duration = 1600;
+              const start = performance.now();
+              function update(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(ease * target);
+                el.textContent = formatNum(current) + suffix;
+                if (progress < 1) requestAnimationFrame(update);
+                else el.textContent = formatNum(target) + suffix;
+              }
+              requestAnimationFrame(update);
+              statsObserver.unobserve(el);
+            }
+          });
+        },
+        { threshold: 0.3 },
+      );
+
+      document
+        .querySelectorAll(".stat-num[data-target]")
+        .forEach((el) => statsObserver.observe(el));
+
+      // ── CAR ANIMATION ──
+      (function animateCar() {
+        const path = document.getElementById("carRoutePath");
+        const car = document.getElementById("heroCar");
+        if (!path || !car) return;
+        const totalLen = path.getTotalLength();
+        const duration = 5000; // ms
+        let startTime = null;
+        function step(ts) {
+          if (!startTime) startTime = ts;
+          const elapsed = (ts - startTime) % duration;
+          const t = elapsed / duration;
+          const len = t * totalLen;
+          const pt = path.getPointAtLength(len);
+          // Get tangent angle using two nearby points
+          const dt = Math.max(0, len - 1);
+          const pt0 = path.getPointAtLength(dt);
+          const angle =
+            (Math.atan2(pt.y - pt0.y, pt.x - pt0.x) * 180) / Math.PI;
+          car.setAttribute(
+            "transform",
+            `translate(${pt.x},${pt.y}) rotate(${angle})`,
+          );
+          requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      })();
+    </script>
+  </body>
+</html>
