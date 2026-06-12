@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SmartScale AI — EV Infrastructure Intelligence</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root{
+  --bg:#080C14;--surface:#0F1623;--surface2:#141D2E;
+  --cyan:#00D4FF;--violet:#7B61FF;--glow-mid:#0D3B4F;
+  --body:#C8D6E5;--muted:#5A7A99;--white:#F0F8FF;
+  --border:rgba(0,212,255,0.12);--border-hi:rgba(0,212,255,0.55);
+  --r:12px;--pill:999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit}
+
+.container{width:90%;max-width:1200px;margin:0 auto}
+.mono{font-family:'JetBrains Mono',monospace}
+.grotesk{font-family:'Space Grotesk',sans-serif}
+.sec-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.9rem,3.5vw,2.8rem);font-weight:700;line-height:1.15;color:var(--white)}
+.fade-up{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease}
+.fade-up.vis{opacity:1;transform:none}
+
+/* NAV */
+#navbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:92%;max-width:1200px;z-index:1000;background:rgba(8,12,20,.75);border:1px solid var(--border);border-radius:10px;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;transition:background .3s,box-shadow .3s,backdrop-filter .3s}
+#navbar.scrolled{background:rgba(8,12,20,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 0 1px var(--border)}
+.nav-logo{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--white);white-space:nowrap}
+.logo-icon{width:32px;height:32px;border-radius:8px;background:rgba(0,212,255,.08);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-text{color:var(--cyan)}
+.nav-toggle{display:flex;align-items:center;background:rgba(15,22,35,.8);border:1px solid var(--border);border-radius:var(--pill);padding:4px;gap:2px}
+.ntab{padding:6px 16px;border-radius:var(--pill);font-size:.84rem;font-weight:600;border:none;background:none;color:var(--muted);cursor:pointer;transition:background .2s,color .2s;white-space:nowrap}
+.ntab:hover{color:var(--body)}
+.ntab.active{background:linear-gradient(90deg,rgba(0,212,255,.18),rgba(123,97,255,.18));color:var(--cyan);border:1px solid rgba(0,212,255,.25)}
+.nav-cta{background:transparent;border:1px solid var(--cyan);color:var(--cyan);padding:8px 20px;border-radius:var(--pill);font-size:.875rem;font-weight:600;transition:box-shadow .25s,background .2s,transform .15s;white-space:nowrap}
+.nav-cta:hover{box-shadow:0 0 22px rgba(0,212,255,.4),inset 0 0 16px rgba(0,212,255,.06);transform:scale(1.02)}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--muted);border-radius:2px;transition:all .3s}
+.mob-drawer{display:none;flex-direction:column;gap:10px;padding:14px 0 4px;border-top:1px solid var(--border);margin-top:8px}
+.mob-drawer.open{display:flex}
+.mob-drawer a,.mob-drawer button{font-size:.93rem;font-weight:600;color:var(--body);background:none;border:none;text-align:left;padding:4px 0}
+
+/* HERO */
+#hero{position:relative;min-height:100vh;display:flex;align-items:center;padding:140px 0 100px;overflow:hidden}
+.pulse-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding-right:10%;pointer-events:none;z-index:0;opacity:.18}
+.pr{position:absolute;border-radius:50%;border:1px solid var(--cyan)}
+.pr1{width:280px;height:280px;animation:px 4s ease-out infinite}
+.pr2{width:280px;height:280px;animation:px 4s ease-out infinite 1.4s}
+.pr3{width:280px;height:280px;animation:px 4s ease-out infinite 2.8s}
+@keyframes px{0%{transform:scale(.4);opacity:.9}100%{transform:scale(4);opacity:0}}
+.wave-bg{position:absolute;bottom:22%;left:0;width:100%;height:90px;pointer-events:none;z-index:0;opacity:.13}
+.wp{stroke-dasharray:1400;stroke-dashoffset:0;animation:wd 7s linear infinite}
+.wp2{stroke-dasharray:1400;stroke-dashoffset:700;animation:wd 9s linear infinite reverse;opacity:.6}
+@keyframes wd{from{stroke-dashoffset:0}to{stroke-dashoffset:-500}}
+.scan{position:absolute;top:0;left:0;width:100%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.35),transparent);animation:sc 10s ease-in-out infinite;pointer-events:none;z-index:0}
+@keyframes sc{0%{top:8%;opacity:0}8%{opacity:1}92%{opacity:1}100%{top:92%;opacity:0}}
+.hero-inner{position:relative;z-index:1;max-width:760px}
+.hero-eye{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:1.4rem;display:flex;align-items:center;gap:10px}
+.hero-eye::before{content:'';width:28px;height:1px;background:var(--cyan)}
+.hero-h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.8rem,6vw,5rem);font-weight:700;line-height:1.05;color:var(--white);margin-bottom:1.6rem}
+.grad{background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(.98rem,1.6vw,1.14rem);color:var(--body);line-height:1.72;max-width:580px;margin-bottom:2.2rem;opacity:.85}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:2.4rem}
+.btn-primary{background:linear-gradient(90deg,var(--cyan),var(--violet));color:#000;border:none;padding:14px 30px;border-radius:var(--pill);font-size:1rem;font-weight:700;transition:transform .15s,box-shadow .2s}
+.btn-primary:hover{transform:scale(1.03);box-shadow:0 8px 30px rgba(0,212,255,.35)}
+.btn-ghost-cyan{background:none;border:1px solid rgba(0,212,255,.35);color:var(--cyan);padding:14px 26px;border-radius:var(--pill);font-size:1rem;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:border-color .2s,box-shadow .2s}
+.btn-ghost-cyan:hover{border-color:var(--cyan);box-shadow:0 0 18px rgba(0,212,255,.2)}
+.trust-row{display:flex;gap:22px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:.77rem;color:var(--muted)}
+.tdot{width:5px;height:5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan);flex-shrink:0}
+
+/* PROBLEM BAR */
+#prob{background:var(--surface);padding:22px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.prob-text{font-family:'Space Grotesk',sans-serif;font-size:clamp(.95rem,1.8vw,1.14rem);font-weight:500;color:var(--body);text-align:center;line-height:1.6}
+.prob-text .ac{color:var(--cyan)}
+
+/* FEATURES */
+#features{padding:110px 0}
+.feat-hdr{text-align:center;margin-bottom:58px}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.fc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:30px 26px;transition:border-color .25s,box-shadow .25s,transform .25s;position:relative;overflow:hidden}
+.fc::before{content:'';position:absolute;inset:0;border-radius:var(--r);background:radial-gradient(circle at 18% 18%,rgba(0,212,255,.04),transparent 55%);pointer-events:none}
+.fc:hover{border-color:var(--cyan);box-shadow:0 0 32px rgba(0,212,255,.12),0 8px 32px rgba(0,0,0,.35);transform:translateY(-4px)}
+.fi{width:44px;height:44px;border-radius:10px;background:rgba(0,212,255,.07);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.fc h3{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:600;color:var(--white);margin-bottom:8px}
+.fc p{font-size:.875rem;color:var(--muted);line-height:1.68}
+
+/* HOW */
+#how{background:var(--surface);padding:110px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.how-hdr{text-align:center;margin-bottom:64px}
+.steps-row{display:flex;align-items:flex-start}
+.step-con{flex:1;display:flex;align-items:center;padding-top:30px}
+.step-line{flex:1;height:1px;border-top:1px dashed rgba(0,212,255,.28)}
+.step-arrow{color:rgba(0,212,255,.5);font-size:.75rem;padding:0 2px}
+.step-box{flex:0 0 calc(33% - 24px);background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:30px 24px;position:relative;transition:border-color .25s}
+.step-box:hover{border-color:rgba(0,212,255,.4)}
+.step-tag-l{font-family:'JetBrains Mono',monospace;font-size:.67rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin-bottom:12px}
+.step-box h3{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:600;color:var(--white);margin-bottom:8px}
+.step-box p{font-size:.875rem;color:var(--muted);line-height:1.65}
+.step-bg-num{position:absolute;top:12px;right:16px;font-family:'JetBrains Mono',monospace;font-size:3.8rem;font-weight:700;color:rgba(0,212,255,.04);line-height:1;user-select:none}
+
+/* INTEGRATION */
+#integ{padding:110px 0}
+.integ-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:60px;display:grid;grid-template-columns:1fr auto;gap:60px;align-items:center;position:relative;overflow:hidden}
+.integ-card::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.05),transparent 70%);pointer-events:none}
+.integ-eye{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin-bottom:12px}
+.integ-card h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.5rem,2.5vw,2rem);font-weight:700;color:var(--white);margin-bottom:14px;line-height:1.2}
+.integ-card p{font-size:.93rem;color:var(--muted);line-height:1.7;margin-bottom:22px;max-width:460px}
+.link-arr{display:inline-flex;align-items:center;gap:7px;color:var(--cyan);font-size:.88rem;font-weight:600;background:none;border:none;cursor:pointer;transition:gap .2s}
+.link-arr:hover{gap:12px}
+.fw-wrap{flex-shrink:0;width:220px;height:220px}
+
+/* METRICS */
+#metrics{background:var(--surface);padding:100px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.met-hdr{text-align:center;margin-bottom:56px}
+.met-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.met-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:36px 28px;text-align:center;transition:border-color .25s,box-shadow .25s}
+.met-card:hover{border-color:rgba(0,212,255,.35);box-shadow:0 0 24px rgba(0,212,255,.08)}
+.met-num{font-family:'JetBrains Mono',monospace;font-size:clamp(2.8rem,5vw,4rem);font-weight:600;color:var(--cyan);line-height:1;margin-bottom:12px}
+.met-label{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:500;color:var(--white);margin-bottom:6px}
+.met-desc{font-size:.82rem;color:var(--muted);line-height:1.55}
+
+/* PRICING */
+#pricing{padding:110px 0}
+.price-hdr{text-align:center;margin-bottom:56px}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:start}
+.pc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:34px 28px;position:relative;transition:transform .25s,box-shadow .25s}
+.pc:hover{transform:translateY(-4px)}
+.pc.hi{border-color:var(--cyan);box-shadow:0 0 40px rgba(0,212,255,.14),0 0 0 1px rgba(0,212,255,.2)}
+.pc.hi::before{content:'';position:absolute;inset:0;border-radius:var(--r);background:linear-gradient(160deg,rgba(0,212,255,.04),rgba(123,97,255,.04));pointer-events:none}
+.pop-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,var(--cyan),var(--violet));color:#000;font-size:.68rem;font-weight:700;padding:4px 16px;border-radius:var(--pill);white-space:nowrap;font-family:'JetBrains Mono',monospace;letter-spacing:.06em}
+.p-tier{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.p-amt{font-family:'JetBrains Mono',monospace;font-size:2.4rem;font-weight:600;color:var(--white);line-height:1;margin-bottom:6px}
+.p-amt sup{font-size:1rem;vertical-align:super}
+.p-period{font-size:.88rem;color:var(--muted);font-family:'Inter',sans-serif;font-weight:400}
+.p-desc{font-size:.85rem;color:var(--muted);margin:10px 0 20px;line-height:1.55}
+.p-feats{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:26px}
+.p-feats li{display:flex;align-items:flex-start;gap:9px;font-size:.86rem;color:var(--body)}
+.ck{width:16px;height:16px;border-radius:4px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.btn-pp{width:100%;background:linear-gradient(90deg,var(--cyan),var(--violet));color:#000;border:none;border-radius:8px;padding:12px;font-size:.9rem;font-weight:700;transition:transform .15s,opacity .15s}
+.btn-pp:hover{transform:translateY(-1px);opacity:.92}
+.btn-pg{width:100%;background:none;border:1px solid var(--border);color:var(--body);border-radius:8px;padding:12px;font-size:.9rem;font-weight:600;transition:border-color .2s,color .2s}
+.btn-pg:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* CTA */
+#cta{position:relative;padding:120px 0;text-align:center;border-top:1px solid var(--border)}
+.cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,212,255,.07),transparent 70%);pointer-events:none}
+.cta-inner{position:relative;z-index:1}
+.cta-inner h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--white);margin-bottom:.8rem;line-height:1.15}
+.cta-inner p{font-size:.98rem;color:var(--muted);margin-bottom:2.2rem;line-height:1.6}
+.btn-cta-lg{background:linear-gradient(90deg,var(--cyan),var(--violet));color:#000;border:none;border-radius:var(--pill);padding:16px 40px;font-size:1.05rem;font-weight:700;transition:transform .15s,box-shadow .2s}
+.btn-cta-lg:hover{transform:scale(1.03);box-shadow:0 10px 36px rgba(0,212,255,.3)}
+
+/* FOOTER */
+footer{background:var(--surface);border-top:1px solid var(--border);padding:72px 0 0}
+.ft-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:48px;margin-bottom:60px}
+.ft-logo{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;color:var(--white);margin-bottom:12px}
+.ft-tag{font-size:.85rem;color:var(--muted);line-height:1.65;margin-bottom:18px}
+.ft-sr-link{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--cyan);font-weight:600;border:1px solid rgba(0,212,255,.2);border-radius:var(--pill);padding:5px 12px;transition:border-color .2s,box-shadow .2s}
+.ft-sr-link:hover{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,212,255,.15)}
+.ft-col h4{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.ft-col ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.ft-col li a{font-size:.87rem;color:rgba(200,214,229,.55);transition:color .2s}
+.ft-col li a:hover{color:var(--cyan)}
+.ft-social{display:flex;gap:10px;margin-top:14px}
+.si{width:34px;height:34px;border-radius:8px;background:rgba(0,212,255,.05);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s}
+.si:hover{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.35)}
+.ft-bar{border-top:1px solid var(--border);padding:20px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:.78rem;color:var(--muted)}
+.ft-bar-links{display:flex;gap:20px}
+.ft-bar-links a{color:var(--muted);transition:color .2s}
+.ft-bar-links a:hover{color:var(--cyan)}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .feat-grid{grid-template-columns:repeat(2,1fr)}
+  .met-grid{grid-template-columns:repeat(2,1fr)}
+  .price-grid{grid-template-columns:1fr}
+  .integ-card{grid-template-columns:1fr;gap:40px}
+  .fw-wrap{width:160px;height:160px;margin:0 auto}
+  .ft-grid{grid-template-columns:1fr 1fr;gap:32px}
+}
+@media(max-width:768px){
+  .feat-grid,.met-grid{grid-template-columns:1fr}
+  .steps-row{flex-direction:column;gap:16px}
+  .step-con{display:none}
+  .step-box{flex:none;width:100%}
+  .trust-row,.hero-ctas{flex-direction:column;align-items:flex-start}
+  .ft-grid{grid-template-columns:1fr}
+  .ft-bar{flex-direction:column;text-align:center}
+  .ft-bar-links{justify-content:center}
+  .integ-card{padding:36px 24px}
+  .hamburger{display:flex}
+  .nav-actions-wrap{display:none}
+}
+@media(max-width:480px){
+  #navbar{padding:8px 14px}
+  .hero-h1{font-size:2.4rem}
+  .integ-card{padding:28px 20px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  .fade-up{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav id="navbar">
+  <div class="nav-logo">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M9 2L14 6.5v5L9 16l-5-4.5v-5L9 2z" stroke="#00D4FF" stroke-width="1.3" fill="rgba(0,212,255,.08)"/>
+        <circle cx="9" cy="9" r="2.2" fill="#00D4FF"/>
+      </svg>
+    </div>
+    SmartScale <span class="ai-text">AI</span>
+  </div>
+
+  <div class="nav-toggle">
+    <button class="ntab" onclick="window.location.href='index.html'">SmartRoute</button>
+    <button class="ntab active">SmartScale AI</button>
+  </div>
+
+  <div class="nav-actions-wrap" style="display:flex;align-items:center;gap:10px">
+    <button class="nav-cta" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Request Demo</button>
+  </div>
+
+  <button class="hamburger" id="hbg" onclick="document.getElementById('mob-drawer').classList.toggle('open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="mob-drawer" id="mob-drawer">
+    <a href="index.html">SmartRoute</a>
+    <button class="nav-cta" style="width:100%;text-align:center">Request Demo</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="pulse-bg">
+    <div class="pr pr1"></div>
+    <div class="pr pr2"></div>
+    <div class="pr pr3"></div>
+  </div>
+  <div class="wave-bg">
+    <svg width="100%" height="90" viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path class="wp" d="M0 45 Q72 12 144 45 Q216 78 288 45 Q360 12 432 45 Q504 78 576 45 Q648 12 720 45 Q792 78 864 45 Q936 12 1008 45 Q1080 78 1152 45 Q1224 12 1296 45 Q1368 78 1440 45 Q1512 12 1584 45 Q1656 78 1728 45" stroke="#00D4FF" stroke-width="1.5" fill="none"/>
+      <path class="wp wp2" d="M0 55 Q96 20 192 55 Q288 90 384 55 Q480 20 576 55 Q672 90 768 55 Q864 20 960 55 Q1056 90 1152 55 Q1248 20 1344 55 Q1440 90 1536 55 Q1632 20 1728 55" stroke="#7B61FF" stroke-width="1" fill="none"/>
+    </svg>
+  </div>
+  <div class="scan"></div>
+  <div class="container">
+    <div class="hero-inner fade-up">
+      <div class="hero-eye">EV Infrastructure Intelligence</div>
+      <h1 class="hero-h1">
+        Scale <span class="grad">Smarter.</span><br>
+        Charge <span class="grad">Faster.</span><br>
+        Grow <span class="grad">Further.</span>
+      </h1>
+      <p class="hero-sub">SmartScale AI transforms raw charging data into strategic decisions — helping EV operators maximise uptime, revenue, and network coverage.</p>
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Request Demo</button>
+        <button class="btn-ghost-cyan" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 5.5l4 2.5-4 2.5V5.5z" fill="currentColor"/></svg>
+          Watch How It Works
+        </button>
+      </div>
+      <div class="trust-row">
+        <div class="trust-item"><span class="tdot"></span>12M+ Charging Sessions Analysed</div>
+        <div class="trust-item"><span class="tdot"></span>340+ Operator Locations</div>
+        <div class="trust-item"><span class="tdot"></span>99.6% Uptime Prediction Accuracy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROBLEM BAR ══ -->
+<div id="prob">
+  <div class="container">
+    <p class="prob-text">EV demand is growing <span class="ac">3× faster</span> than infrastructure. SmartScale closes the gap.</p>
+  </div>
+</div>
+
+<!-- ══ FEATURES ══ -->
+<section id="features">
+  <div class="container">
+    <div class="feat-hdr fade-up">
+      <div class="sec-label">Platform Capabilities</div>
+      <h2 class="sec-title">Every decision, backed by data.</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="fc fade-up">
+        <div class="fi">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="3.5" stroke="#00D4FF" stroke-width="1.4"/><circle cx="11" cy="11" r="7" stroke="#00D4FF" stroke-width="1" opacity=".45"/><circle cx="11" cy="11" r="10.2" stroke="#00D4FF" stroke-width=".6" opacity=".2"/></svg>
+        </div>
+        <h3>Demand Heatmapping</h3>
+        <p>Pinpoints high-demand zones with no charger coverage using aggregated GPS and session data from SmartRoute. Know exactly where your next installation will have the highest utilisation before you break ground.</p>
+      </div>
+      <div class="fc fade-up">
+        <div class="fi">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 18V12l4-4 4 4V18" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 18V7l4-4" stroke="#7B61FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="18" x2="21" y2="18" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+        <h3>AutoScale</h3>
+        <p>Automatically activates reserve charging units and redistributes load during predicted peak windows. Capacity management runs without operator intervention — so revenue never stalls when demand spikes.</p>
+      </div>
+      <div class="fc fade-up">
+        <div class="fi">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 3v2M11 17v2M5 11H3M19 11h-2" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round"/><circle cx="11" cy="11" r="4" stroke="#7B61FF" stroke-width="1.4"/><path d="M11 8.5v5M9 9.5h4" stroke="#00D4FF" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Dynamic Pricing Engine</h3>
+        <p>Adjusts per-kWh rates in real time based on demand levels, grid load, and time-of-day signals. Operators capture more revenue at peak while keeping off-peak pricing competitive to maintain utilisation.</p>
+      </div>
+      <div class="fc fade-up">
+        <div class="fi">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="3" width="16" height="16" rx="2" stroke="#00D4FF" stroke-width="1.4" fill="none"/><path d="M7 15l3-4 3 2.5 4-5.5" stroke="#7B61FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="15" r="1.3" fill="#00D4FF"/></svg>
+        </div>
+        <h3>Site Intelligence</h3>
+        <p>Recommends optimal new installation locations with projected ROI, payback periods, and footfall scoring derived from live mobility data. Replaces months of manual survey work with a 48-hour analysis report.</p>
+      </div>
+      <div class="fc fade-up">
+        <div class="fi">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="6" width="8" height="5" rx="1.5" stroke="#00D4FF" stroke-width="1.4"/><rect x="12" y="6" width="8" height="5" rx="1.5" stroke="#7B61FF" stroke-width="1.4"/><rect x="7" y="13" width="8" height="5" rx="1.5" stroke="#00D4FF" stroke-width="1.4"/><line x1="6" y1="8.5" x2="12" y2="8.5" stroke="#00D4FF" stroke-width="1" stroke-dasharray="2 1.5"/><line x1="11" y1="11" x2="11" y2="13" stroke="#00D4FF" stroke-width="1" stroke-dasharray="2 1.5"/></svg>
+        </div>
+        <h3>Fleet Operator Dashboard</h3>
+        <p>Gives B2B fleet managers advance slot booking, priority charging lanes, and unified bulk billing across all locations. Built for logistics operators who can't afford fragmented invoicing or unplanned downtime.</p>
+      </div>
+      <div class="fc fade-up">
+        <div class="fi">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2.5C7 2.5 4 6 4 9.5c0 5 7 10 7 10s7-5 7-10c0-3.5-3-7-7-7z" stroke="#00D4FF" stroke-width="1.3" fill="none"/><path d="M8 9l2 2 4-4" stroke="#7B61FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Grid Health Monitoring</h3>
+        <p>Tracks local grid stress in real time and coordinates with energy providers to stagger load. Prevents costly demand-charge penalties and protects infrastructure from overload events during peak periods.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══ -->
+<section id="how">
+  <div class="container">
+    <div class="how-hdr fade-up">
+      <div class="sec-label">Workflow</div>
+      <h2 class="sec-title">From raw data to real-world action.</h2>
+    </div>
+    <div class="steps-row">
+      <div class="step-box fade-up">
+        <div class="step-bg-num">A</div>
+        <div class="step-tag-l">Step 01 — Collect</div>
+        <h3>SmartRoute collects</h3>
+        <p>Every driver session feeds anonymised data — GPS traces, wait times, charger utilisation, plug types, and failed charge attempts. The dataset grows continuously with every journey on the SmartRoute app.</p>
+      </div>
+      <div class="step-con"><div class="step-line"></div><span class="step-arrow">▶</span></div>
+      <div class="step-box fade-up">
+        <div class="step-bg-num">B</div>
+        <div class="step-tag-l">Step 02 — Analyse</div>
+        <h3>SmartScale analyses</h3>
+        <p>AI models process the inflow continuously — detecting demand patterns, identifying coverage gaps, forecasting peak windows, and scoring candidate installation sites by projected commercial viability.</p>
+      </div>
+      <div class="step-con"><div class="step-line"></div><span class="step-arrow">▶</span></div>
+      <div class="step-box fade-up">
+        <div class="step-bg-num">C</div>
+        <div class="step-tag-l">Step 03 — Act</div>
+        <h3>Operators act</h3>
+        <p>AutoScale triggers fire automatically. Dynamic Pricing adjusts without manual input. New site recommendations arrive with full ROI projections — ready to present to investors or planning teams within hours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ INTEGRATION CALLOUT ══ -->
+<section id="integ">
+  <div class="container">
+    <div class="integ-card fade-up">
+      <div>
+        <div class="integ-eye">Data Flywheel</div>
+        <h2>Powered by SmartRoute data.</h2>
+        <p>Every SmartRoute session makes SmartScale smarter. More drivers generate richer demand signals, which improve infrastructure placement, which attracts more drivers — a self-reinforcing loop that compounds operator advantage over time.</p>
+        <a href="index.html" class="link-arr">
+          Learn about SmartRoute
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <div class="fw-wrap">
+        <svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="cvg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00D4FF"/>
+              <stop offset="100%" stop-color="#7B61FF"/>
+            </linearGradient>
+          </defs>
+          <circle cx="110" cy="110" r="96" stroke="rgba(0,212,255,.1)" stroke-width="1"/>
+          <path d="M110 18 A92 92 0 0 1 202 110" stroke="url(#cvg)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M202 110 A92 92 0 0 1 110 202" stroke="#7B61FF" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M110 202 A92 92 0 0 1 18 110" stroke="rgba(0,212,255,.45)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M18 110 A92 92 0 0 1 110 18" stroke="rgba(0,212,255,.2)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-dasharray="6 4"/>
+          <circle cx="110" cy="18" r="5.5" fill="#00D4FF"/>
+          <circle cx="202" cy="110" r="5.5" fill="#7B61FF"/>
+          <circle cx="110" cy="202" r="5.5" fill="#00D4FF" opacity=".55"/>
+          <circle cx="18" cy="110" r="5.5" fill="#00D4FF" opacity=".28"/>
+          <circle cx="110" cy="110" r="28" fill="rgba(0,212,255,.04)" stroke="rgba(0,212,255,.18)" stroke-width="1"/>
+          <circle cx="110" cy="110" r="17" fill="rgba(0,212,255,.07)" stroke="url(#cvg)" stroke-width="1.5"/>
+          <path d="M103 110l4 4 8-8" stroke="#00D4FF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="110" y="9" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#00D4FF" opacity=".75">DRIVERS</text>
+          <text x="215" y="114" text-anchor="start" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#7B61FF" opacity=".75">DATA</text>
+          <text x="110" y="218" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#00D4FF" opacity=".55">INFRA</text>
+          <text x="4" y="114" text-anchor="start" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#00D4FF" opacity=".3">AI</text>
+          <path d="M110 18 A92 92 0 0 1 202 110" stroke="#00D4FF" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="28 240" opacity=".8">
+            <animateTransform attributeName="transform" type="rotate" from="0 110 110" to="360 110 110" dur="5s" repeatCount="indefinite"/>
+          </path>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ METRICS ══ -->
+<section id="metrics">
+  <div class="container">
+    <div class="met-hdr fade-up">
+      <div class="sec-label">Outcomes</div>
+      <h2 class="sec-title">Numbers operators care about.</h2>
+    </div>
+    <div class="met-grid">
+      <div class="met-card fade-up">
+        <div class="met-num">2.4×</div>
+        <div class="met-label">Average revenue uplift</div>
+        <div class="met-desc">For operators in their first year on the platform, compared to pre-integration baseline.</div>
+      </div>
+      <div class="met-card fade-up">
+        <div class="met-num">68%</div>
+        <div class="met-label">Reduction in idle charger hours</div>
+        <div class="met-desc">AutoScale eliminates capacity waste by predicting peaks and activating reserves before queues form.</div>
+      </div>
+      <div class="met-card fade-up">
+        <div class="met-num">91%</div>
+        <div class="met-label">Site recommendation accuracy</div>
+        <div class="met-desc">Validated against post-installation performance data versus a 54% baseline from manual surveys.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PRICING ══ -->
+<section id="pricing">
+  <div class="container">
+    <div class="price-hdr fade-up">
+      <div class="sec-label">Plans</div>
+      <h2 class="sec-title">Built for operators of every scale.</h2>
+    </div>
+    <div class="price-grid">
+      <div class="pc fade-up">
+        <div class="p-tier">Starter</div>
+        <div class="p-amt"><sup>$</sup>299<span class="p-period">/mo</span></div>
+        <div class="p-desc">For single-site operators taking their first look at demand analytics.</div>
+        <ul class="p-feats">
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Single site dashboard</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Core demand analytics</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Manual site recommendations</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Weekly demand reports</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Email support</li>
+        </ul>
+        <button class="btn-pg">Get Started</button>
+      </div>
+      <div class="pc hi fade-up">
+        <div class="pop-badge">Most Popular</div>
+        <div class="p-tier">Growth</div>
+        <div class="p-amt"><sup>$</sup>899<span class="p-period">/mo</span></div>
+        <div class="p-desc">For multi-site operators ready to automate pricing, scaling, and expansion decisions.</div>
+        <ul class="p-feats">
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Up to 20 sites</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>AutoScale (automated)</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Dynamic Pricing Engine</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>SmartRoute data integration</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>AI site recommendations + ROI</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Priority support + onboarding</li>
+        </ul>
+        <button class="btn-pp">Get Started</button>
+      </div>
+      <div class="pc fade-up">
+        <div class="p-tier">Enterprise</div>
+        <div class="p-amt" style="font-size:1.8rem;padding-top:4px">Custom</div>
+        <div class="p-desc">For large networks and energy companies needing white-label flexibility and SLA-backed performance.</div>
+        <ul class="p-feats">
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Unlimited sites</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>White-label dashboard</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Full REST API access</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Dedicated model training</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Grid integration &amp; SLAs</li>
+          <li><span class="ck"><svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2 4-4" stroke="#00D4FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Dedicated account manager</li>
+        </ul>
+        <button class="btn-pg">Talk to Sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<section id="cta">
+  <div class="cta-glow"></div>
+  <div class="container cta-inner fade-up">
+    <h2>Ready to scale your EV network?</h2>
+    <p>Join forward-thinking operators using AI to stay ahead of demand.</p>
+    <button class="btn-cta-lg">Request a Demo</button>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="container">
+    <div class="ft-grid">
+      <div>
+        <div class="ft-logo">
+          <div class="logo-icon">
+            <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2L14 6.5v5L9 16l-5-4.5v-5L9 2z" stroke="#00D4FF" stroke-width="1.3" fill="rgba(0,212,255,.08)"/><circle cx="9" cy="9" r="2.2" fill="#00D4FF"/></svg>
+          </div>
+          SmartScale <span class="ai-text">AI</span>
+        </div>
+        <p class="ft-tag">AI-powered EV infrastructure intelligence for operators who want to grow faster, smarter, and more profitably.</p>
+        <a href="index.html" class="ft-sr-link">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 2L5 8h3l-1 6 6-8h-3l1-6z" fill="#00D4FF"/></svg>
+          SmartRoute App →
+        </a>
+      </div>
+      <div class="ft-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#">Features</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">API Docs</a></li>
+          <li><a href="#">Integrations</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:hello@smartscale.ai">hello@smartscale.ai</a></li>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Request Demo</a></li>
+        </ul>
+        <div class="ft-social">
+          <a href="#" class="si" aria-label="LinkedIn">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 3.5A1.5 1.5 0 103.5 2 1.5 1.5 0 002 3.5zM2.5 6H4.5v8H2.5V6zM6 6H8v1.1C8.5 6.4 9.4 6 10.3 6 12.3 6 13.5 7.2 13.5 9.3V14h-2V9.7c0-.9-.4-1.7-1.4-1.7S8.5 8.8 8.5 10V14H6.5V6H6z" fill="rgba(200,214,229,.5)"/></svg>
+          </a>
+          <a href="#" class="si" aria-label="X">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M12.6 1h2.5L9.7 7.2 16 15h-4.7L7.7 10 3 15H.5l5.8-6.6L0 1h4.8l3.3 4.4L12.6 1zm-.9 12.5h1.4L4.4 2.5H2.9l8.8 11z" fill="rgba(200,214,229,.5)"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="ft-bar">
+      <span>© 2025 SmartScale AI · A SmartRoute product</span>
+      <div class="ft-bar-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const nav = document.getElementById('navbar');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
+const io = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) x.target.classList.add('vis'); }), {threshold: 0.1});
+document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

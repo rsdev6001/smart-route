@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SmartScale AI — Grow Your Charging Network with AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  /* AI palette — deep indigo + electric violet + cyan glow */
+  --primary:#7C3AED;        /* violet — CTAs, highlights */
+  --primary-light:#8B5CF6;  /* lighter violet */
+  --primary-glow:#A78BFA;   /* soft violet glow */
+  --accent:#06B6D4;         /* cyan — data callouts, charts */
+  --accent2:#F59E0B;        /* amber — warnings, peak indicators */
+  --surface:#0F0A1E;        /* near-black deep purple — hero bg */
+  --surface2:#13102B;       /* slightly lighter surface */
+  --surface3:#1A1535;       /* card backgrounds */
+  --border:rgba(124,58,237,.2);
+  --border-light:rgba(124,58,237,.12);
+  --dark:#0A0714;            /* deepest bg */
+  --text:#E2E0F0;            /* primary text */
+  --muted:#9490B0;           /* secondary labels */
+  --white:#FFFFFF;
+  --shadow:0 8px 40px rgba(0,0,0,.35);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.5);
+  --shadow-violet:0 8px 32px rgba(124,58,237,.25);
+  --radius:14px;
+  --radius-pill:999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Inter',sans-serif;color:var(--text);background:var(--surface);overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit}
+
+/* ── UTILITY ── */
+.container{width:90%;max-width:1200px;margin:0 auto}
+.mono{font-family:'JetBrains Mono',monospace}
+.section-tag{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--primary-glow);margin-bottom:.6rem}
+.section-title{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;line-height:1.18;color:var(--white)}
+.section-title span{color:var(--primary-glow)}
+.fade-in{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease}
+.fade-in.visible{opacity:1;transform:none}
+
+/* subtle noise texture overlay */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity:.4}
+
+/* ── NAV ── */
+#navbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:92%;max-width:1200px;z-index:1000;
+  background:rgba(15,10,30,.7);border-radius:10px;padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  box-shadow:0 4px 24px rgba(0,0,0,.4),0 0 0 1px rgba(124,58,237,.15);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  transition:box-shadow .3s,background .3s}
+#navbar.scrolled{background:rgba(10,7,20,.85);box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 0 1px rgba(124,58,237,.2)}
+.nav-logo{display:flex;align-items:center;gap:9px;font-size:1.15rem;font-weight:800;color:var(--white);white-space:nowrap}
+.nav-toggle-wrap{display:flex;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(124,58,237,.2);border-radius:var(--radius-pill);padding:4px;gap:2px}
+.nav-tab{padding:6px 16px;border-radius:var(--radius-pill);font-size:.85rem;font-weight:600;border:none;background:none;color:var(--muted);cursor:pointer;transition:background .2s,color .2s;white-space:nowrap}
+.nav-tab.active{background:var(--primary);color:var(--white)}
+.ai-badge{color:var(--primary-glow);letter-spacing:.6px}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.btn-ghost{background:none;border:1.5px solid rgba(124,58,237,.4);color:var(--text);padding:7px 18px;border-radius:var(--radius-pill);font-size:.875rem;font-weight:600;transition:background .2s,border-color .2s,color .2s}
+.btn-ghost:hover{background:rgba(124,58,237,.15);border-color:var(--primary);color:var(--white)}
+.btn-primary{background:var(--primary);border:none;color:var(--white);padding:8px 20px;border-radius:var(--radius-pill);font-size:.875rem;font-weight:700;transition:transform .15s,box-shadow .15s}
+.btn-primary:hover{transform:scale(1.03);box-shadow:0 6px 20px rgba(124,58,237,.45)}
+.btn-primary:active{transform:scale(.98)}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:4px}
+.hamburger span{display:block;width:24px;height:2.5px;background:var(--text);border-radius:2px;transition:all .3s}
+.mobile-drawer{display:none;flex-direction:column;gap:10px;padding:14px 0 6px;border-top:1px solid rgba(124,58,237,.15);margin-top:8px}
+.mobile-drawer.open{display:flex}
+.mobile-drawer a,.mobile-drawer button{font-size:.95rem;font-weight:600;color:var(--text);background:none;border:none;text-align:left;padding:4px 0}
+
+/* ── HERO ── */
+#hero{background:var(--surface);padding:140px 0 120px;position:relative;overflow:hidden;
+  clip-path:polygon(0 0,100% 0,100% 92%,0 100%)}
+
+/* ambient orbs */
+.hero-orb{position:absolute;border-radius:50%;pointer-events:none}
+.hero-orb-1{width:600px;height:600px;top:-200px;right:-100px;
+  background:radial-gradient(circle,rgba(124,58,237,.18) 0%,transparent 65%)}
+.hero-orb-2{width:400px;height:400px;bottom:-100px;left:-80px;
+  background:radial-gradient(circle,rgba(6,182,212,.12) 0%,transparent 65%)}
+.hero-orb-3{width:300px;height:300px;top:40%;left:40%;
+  background:radial-gradient(circle,rgba(139,92,246,.08) 0%,transparent 60%)}
+
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;position:relative;z-index:1}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);border-radius:var(--radius-pill);padding:5px 14px;font-size:.78rem;font-weight:700;letter-spacing:.06em;color:var(--primary-glow);margin-bottom:1.2rem;text-transform:uppercase}
+.hero-eyebrow::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--primary-glow);animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(167,139,250,.6)}50%{box-shadow:0 0 0 6px rgba(167,139,250,0)}}
+.hero-h1{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.1;color:var(--white);margin-bottom:1.2rem}
+.hero-h1 .hl{background:linear-gradient(135deg,var(--primary-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(.95rem,1.6vw,1.1rem);color:var(--muted);line-height:1.7;max-width:500px;margin-bottom:2rem}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:2rem}
+.btn-hero-primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:var(--white);border:none;padding:14px 28px;border-radius:var(--radius-pill);font-size:1rem;font-weight:700;display:inline-flex;align-items:center;gap:8px;transition:transform .15s,box-shadow .15s}
+.btn-hero-primary:hover{transform:scale(1.03);box-shadow:0 10px 30px rgba(124,58,237,.5)}
+.btn-hero-secondary{background:rgba(255,255,255,.05);color:var(--text);border:1.5px solid rgba(124,58,237,.3);padding:14px 24px;border-radius:var(--radius-pill);font-size:1rem;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:border-color .2s,background .2s,color .2s}
+.btn-hero-secondary:hover{border-color:var(--primary-glow);background:rgba(124,58,237,.1);color:var(--white)}
+.trust-row{display:flex;gap:24px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:var(--muted)}
+.trust-sep{color:rgba(148,144,176,.3);font-size:1.2rem}
+
+/* ── hero viz — AI dashboard mockup ── */
+.hero-viz{background:rgba(19,16,43,.8);border:1px solid rgba(124,58,237,.2);border-radius:20px;
+  box-shadow:var(--shadow-lg),0 0 60px rgba(124,58,237,.12);
+  padding:20px;position:relative;overflow:hidden}
+.hero-viz::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--primary),var(--accent),transparent)}
+
+@keyframes bar-grow{0%{height:0}100%{height:var(--h)}}
+@keyframes ai-scan{0%,100%{top:0;opacity:1}48%{opacity:1}50%{opacity:0;top:100%}51%{opacity:0;top:0}52%{opacity:1}}
+.scan-line{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(6,182,212,.6),transparent);animation:ai-scan 3s linear infinite;pointer-events:none}
+@keyframes data-pulse{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes node-ping{0%{r:3;opacity:1}100%{r:12;opacity:0}}
+
+/* ── WIDGET (demo request) ── */
+#widget{margin-top:-70px;position:relative;z-index:10;padding-bottom:60px}
+.widget-card{background:var(--surface3);border-radius:20px;box-shadow:var(--shadow-lg),0 0 0 1px var(--border);padding:32px 36px}
+.widget-title{font-size:1.1rem;font-weight:800;color:var(--white);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.widget-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.widget-field{display:flex;flex-direction:column;gap:6px}
+.widget-field label{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.widget-field input,.widget-field select{border:1.5px solid rgba(124,58,237,.2);border-radius:10px;padding:11px 14px;font-size:.93rem;font-family:inherit;color:var(--text);background:rgba(255,255,255,.04);outline:none;transition:border-color .2s}
+.widget-field input:focus,.widget-field select:focus{border-color:var(--primary)}
+.widget-field input::placeholder{color:var(--muted)}
+.widget-field select option{background:var(--surface3)}
+.btn-widget{width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:var(--white);border:none;border-radius:12px;padding:15px;font-size:1rem;font-weight:700;transition:transform .15s,box-shadow .15s;margin-bottom:12px}
+.btn-widget:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(124,58,237,.45)}
+.widget-note{font-size:.78rem;color:var(--muted);text-align:center}
+
+/* ── HOW IT WORKS ── */
+#how{background:var(--surface2);padding:100px 0}
+.how-header{text-align:center;margin-bottom:60px}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.step-card{background:var(--surface3);border-radius:var(--radius);padding:36px 28px;position:relative;overflow:hidden;border-left:3px solid var(--primary);box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s}
+.step-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg),0 0 30px rgba(124,58,237,.15)}
+.step-num{position:absolute;top:12px;right:18px;font-family:'JetBrains Mono',monospace;font-size:4.5rem;font-weight:700;color:rgba(124,58,237,.07);line-height:1;user-select:none}
+.step-icon{width:52px;height:52px;background:rgba(124,58,237,.12);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.step-card h3{font-size:1.1rem;font-weight:700;margin-bottom:8px;color:var(--white)}
+.step-card p{font-size:.9rem;color:var(--muted);line-height:1.65}
+
+/* ── FEATURES ── */
+#features{background:var(--surface);padding:100px 0}
+.features-header{text-align:center;margin-bottom:60px}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.feat-card{background:var(--surface3);border-radius:var(--radius);padding:28px 24px;border:1px solid var(--border-light);border-left:3px solid var(--primary);transition:transform .25s,box-shadow .25s,border-color .2s}
+.feat-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg),0 0 30px rgba(124,58,237,.12);border-color:var(--border)}
+.feat-icon{width:46px;height:46px;background:rgba(124,58,237,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.feat-card h3{font-size:1rem;font-weight:700;margin-bottom:6px;color:var(--white)}
+.feat-card p{font-size:.87rem;color:var(--muted);line-height:1.6}
+
+/* ── DASHBOARD PREVIEW ── */
+#dashboard-preview{background:var(--surface2);padding:100px 0}
+.preview-inner{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.preview-text h2{font-size:clamp(1.7rem,3vw,2.5rem);font-weight:800;line-height:1.2;margin-bottom:1.2rem;color:var(--white)}
+.preview-bullets{list-style:none;margin-bottom:2rem;display:flex;flex-direction:column;gap:10px}
+.preview-bullets li{display:flex;align-items:flex-start;gap:10px;font-size:.92rem;color:var(--muted);line-height:1.5}
+.preview-bullets li::before{content:'';flex-shrink:0;width:18px;height:18px;background:rgba(124,58,237,.15);border-radius:50%;border:2px solid var(--primary);margin-top:2px}
+.btn-outline-primary{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--primary);color:var(--primary-glow);background:none;border-radius:var(--radius-pill);padding:11px 24px;font-size:.92rem;font-weight:700;transition:background .2s,color .2s}
+.btn-outline-primary:hover{background:var(--primary);color:var(--white)}
+.dashboard-mockup{background:var(--surface3);border-radius:18px;box-shadow:var(--shadow-lg),0 0 0 1px var(--border);overflow:hidden;width:100%}
+.dashboard-mockup svg{display:block;width:100%;height:auto}
+
+/* ── TESTIMONIALS ── */
+#testimonials{background:var(--surface);padding:100px 0}
+.testi-header{text-align:center;margin-bottom:52px}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px}
+.testi-card{background:var(--surface3);border-radius:var(--radius);padding:28px 24px;border:1px solid var(--border-light);border-left:3px solid var(--primary);transition:transform .25s,box-shadow .25s}
+.testi-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg),0 0 20px rgba(124,58,237,.1)}
+.stars{display:flex;gap:3px;margin-bottom:14px}
+.testi-card blockquote{font-size:.91rem;color:var(--text);line-height:1.7;margin-bottom:16px;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:10px}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--white);flex-shrink:0}
+.author-info{font-size:.83rem}
+.author-name{font-weight:700;color:var(--white)}
+.author-ev{color:var(--muted)}
+.brand-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px}
+.brand-tag{padding:7px 16px;border-radius:var(--radius-pill);border:1.5px solid rgba(124,58,237,.2);font-size:.78rem;font-weight:700;color:var(--muted);letter-spacing:.04em;transition:border-color .2s,color .2s}
+.brand-tag:hover{border-color:var(--primary-glow);color:var(--primary-glow)}
+.brand-label{font-size:.8rem;color:var(--muted);font-weight:600;margin-right:4px}
+
+/* ── STATS ── */
+#stats{position:relative;padding:90px 0;background:linear-gradient(135deg,#4C1D95,#1E1B4B,#0E7490)}
+.stats-wave-top,.stats-wave-bot{position:absolute;left:0;width:100%;overflow:hidden;line-height:0}
+.stats-wave-top{top:-1px}
+.stats-wave-bot{bottom:-1px;transform:scaleY(-1)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;text-align:center;position:relative;z-index:1}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:clamp(2.2rem,4vw,3rem);font-weight:700;color:var(--white);line-height:1}
+.stat-label{font-size:.87rem;color:rgba(255,255,255,.65);margin-top:6px;font-weight:500}
+
+/* ── PRICING ── */
+#pricing{background:var(--surface2);padding:100px 0}
+.pricing-header{text-align:center;margin-bottom:48px}
+.billing-toggle{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:48px}
+.billing-toggle span{font-size:.9rem;font-weight:600;color:var(--muted)}
+.billing-toggle span.active-label{color:var(--white)}
+.toggle-switch{width:52px;height:28px;background:rgba(255,255,255,.1);border-radius:var(--radius-pill);position:relative;cursor:pointer;transition:background .3s;border:1px solid rgba(124,58,237,.3);flex-shrink:0}
+.toggle-switch.annual{background:var(--primary)}
+.toggle-knob{position:absolute;top:3px;left:3px;width:20px;height:20px;background:var(--white);border-radius:50%;transition:transform .3s;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.toggle-switch.annual .toggle-knob{transform:translateX(24px)}
+.discount-badge{background:rgba(124,58,237,.15);color:var(--primary-glow);font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:var(--radius-pill);border:1px solid rgba(124,58,237,.25)}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:start}
+.price-card{border-radius:var(--radius);padding:32px 28px;border:1px solid rgba(124,58,237,.18);background:var(--surface3);position:relative;transition:transform .25s,box-shadow .25s}
+.price-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg),0 0 40px rgba(124,58,237,.15)}
+.price-card.popular{border-color:var(--primary);background:linear-gradient(160deg,rgba(124,58,237,.1),rgba(6,182,212,.05))}
+.popular-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--primary);color:var(--white);font-size:.75rem;font-weight:700;padding:4px 16px;border-radius:var(--radius-pill);white-space:nowrap}
+.price-plan{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.price-amount{font-family:'JetBrains Mono',monospace;font-size:2.6rem;font-weight:700;color:var(--white);line-height:1}
+.price-amount sup{font-size:1.1rem;vertical-align:super}
+.price-amount .period{font-size:.9rem;color:var(--muted);font-family:'Inter',sans-serif;font-weight:500}
+.price-desc{font-size:.85rem;color:var(--muted);margin:10px 0 20px;line-height:1.5}
+.price-features{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.price-features li{display:flex;align-items:center;gap:9px;font-size:.87rem;color:var(--text)}
+.check-icon{width:18px;height:18px;background:rgba(124,58,237,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-price{width:100%;border-radius:10px;padding:13px;font-size:.93rem;font-weight:700;border:1.5px solid var(--primary);color:var(--primary-glow);background:none;transition:background .2s,color .2s}
+.btn-price:hover,.price-card.popular .btn-price{background:var(--primary);color:var(--white)}
+
+/* ── FAQ ── */
+#faq{background:var(--surface);padding:100px 0}
+.faq-header{text-align:center;margin-bottom:52px}
+.faq-list{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.faq-item{background:var(--surface3);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border-light)}
+.faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;padding:20px 24px;background:none;border:none;font-size:.97rem;font-weight:600;color:var(--text);cursor:pointer;gap:16px;text-align:left}
+.faq-icon{width:26px;height:26px;border-radius:50%;background:rgba(124,58,237,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s,transform .3s;color:var(--primary-glow)}
+.faq-item.open .faq-icon{background:var(--primary);transform:rotate(45deg);color:var(--white)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.faq-a p{padding:0 24px 20px;font-size:.9rem;color:var(--muted);line-height:1.7}
+.faq-item.open .faq-a{max-height:300px}
+
+/* ── CTA BANNER ── */
+#cta-banner{background:var(--surface2);padding:100px 0;position:relative;overflow:hidden;text-align:center}
+.cta-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(124,58,237,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,.06) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.cta-orb{position:absolute;width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.12) 0%,transparent 65%);pointer-events:none}
+.cta-banner-inner{position:relative;z-index:1}
+.cta-banner-inner h2{font-size:clamp(2rem,4vw,3rem);font-weight:900;color:var(--white);margin-bottom:.8rem;line-height:1.15}
+.cta-banner-inner h2 span{background:linear-gradient(135deg,var(--primary-glow),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.cta-banner-inner p{font-size:1rem;color:var(--muted);margin-bottom:2rem}
+.cta-email-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.cta-email-input{padding:13px 20px;border-radius:var(--radius-pill);font-size:.93rem;font-family:inherit;width:300px;max-width:100%;outline:none;background:rgba(255,255,255,.05);border:1.5px solid rgba(124,58,237,.3);color:var(--text)}
+.cta-email-input::placeholder{color:var(--muted)}
+.cta-email-input:focus{border-color:var(--primary)}
+.btn-cta-big{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:var(--white);border:none;border-radius:var(--radius-pill);padding:13px 30px;font-size:.95rem;font-weight:700;transition:transform .15s,box-shadow .15s}
+.btn-cta-big:hover{transform:scale(1.03);box-shadow:0 10px 30px rgba(124,58,237,.45)}
+.btn-cta-outline{margin-top:12px;display:inline-flex;align-items:center;gap:8px;border:2px solid rgba(124,58,237,.3);color:var(--text);background:none;border-radius:var(--radius-pill);padding:12px 28px;font-size:.95rem;font-weight:700;transition:border-color .2s,color .2s}
+.btn-cta-outline:hover{border-color:var(--primary-glow);color:var(--white)}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);padding:72px 0 0;color:var(--muted);border-top:1px solid rgba(124,58,237,.1)}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;margin-bottom:52px}
+.footer-logo{display:flex;align-items:center;gap:9px;font-size:1.1rem;font-weight:800;color:var(--white);margin-bottom:12px}
+.footer-tagline{font-size:.87rem;color:rgba(255,255,255,.35);margin-bottom:18px;line-height:1.6}
+.social-row{display:flex;gap:12px}
+.social-btn{width:36px;height:36px;border-radius:9px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s}
+.social-btn:hover{background:rgba(124,58,237,.2);border-color:var(--primary)}
+.footer-col h4{font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.footer-col li a{font-size:.88rem;color:var(--muted);transition:color .2s}
+.footer-col li a:hover{color:var(--primary-glow)}
+.footer-bar{border-top:1px solid rgba(124,58,237,.08);padding:20px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:.8rem;color:rgba(255,255,255,.25)}
+.footer-bar-links{display:flex;gap:20px}
+.footer-bar-links a{color:rgba(255,255,255,.25);transition:color .2s}
+.footer-bar-links a:hover{color:var(--primary-glow)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .features-grid{grid-template-columns:repeat(2,1fr)}
+  .pricing-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:40px}
+}
+@media(max-width:768px){
+  #hero{clip-path:none;padding:130px 0 80px}
+  .hero-inner{grid-template-columns:1fr;text-align:center}
+  .hero-sub{max-width:100%}
+  .trust-row{justify-content:center}
+  .hero-viz{display:none}
+  .widget-grid{grid-template-columns:1fr}
+  .steps-grid{grid-template-columns:1fr}
+  .testi-grid{grid-template-columns:1fr}
+  .preview-inner{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .hero-ctas{justify-content:center}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+  .nav-actions .btn-ghost{display:none}
+  #navbar{padding:8px 14px}
+  .widget-card{padding:22px 18px}
+  .footer-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .cta-email-input{width:100%}
+  .cta-email-row{flex-direction:column;align-items:center}
+  .footer-bar{flex-direction:column;text-align:center}
+  .footer-bar-links{justify-content:center}
+}
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .nav-actions{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="8" fill="url(#ai-logo-grad)"/>
+      <defs><linearGradient id="ai-logo-grad" x1="0" y1="0" x2="32" y2="32"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#06B6D4"/></linearGradient></defs>
+      <!-- brain/circuit icon -->
+      <circle cx="16" cy="13" r="6" stroke="white" stroke-width="1.5" fill="none"/>
+      <path d="M13 13 Q14 11 16 13 Q18 15 19 13" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M16 19v3M12 21h8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="10" cy="13" r="1.5" fill="white" opacity=".6"/>
+      <circle cx="22" cy="13" r="1.5" fill="white" opacity=".6"/>
+    </svg>
+    SmartScale <span class="ai-badge" style="font-size:.9em">𝔸𝕀</span>
+  </a>
+  <div class="nav-toggle-wrap">
+    <button class="nav-tab" id="tab-home" onclick="handleTab('home')">SmartRoute</button>
+    <button class="nav-tab active" id="tab-ai" onclick="handleTab('ai')">SmartScale <span class="ai-badge">𝔸𝕀</span></button>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-ghost">Log In</button>
+    <button class="btn-primary">Request Demo</button>
+  </div>
+  <button class="hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="mobile-drawer" id="mobile-drawer">
+    <button class="btn-ghost">Log In</button>
+    <button class="btn-primary">Request Demo</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="hero-eyebrow">AI-Powered · EV Infrastructure Intelligence</div>
+        <h1 class="hero-h1">Scale Your Charging Network<br><span class="hl">With the Power of AI.</span></h1>
+        <p class="hero-sub">SmartScale AI analyzes millions of charging sessions from the SmartRoute network to help EV charger operators maximize utilization, predict demand, and grow intelligently.</p>
+        <div class="hero-ctas">
+          <a href="#widget" class="btn-hero-primary">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L5 8h3L7 15l7-9h-4L13 1H8z" fill="white"/></svg>
+            Request a Demo
+          </a>
+          <button class="btn-hero-secondary">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8.25" stroke="currentColor" stroke-width="1.5"/><path d="M7 6l5 3-5 3V6z" fill="currentColor"/></svg>
+            See It in Action
+          </button>
+        </div>
+        <div class="trust-row">
+          <div class="trust-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#A78BFA" stroke-width="1.4"/><path d="M4 7l2 2 4-4" stroke="#A78BFA" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>2.1M+ Sessions Analyzed</span>
+          </div>
+          <span class="trust-sep">|</span>
+          <div class="trust-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="3" stroke="#A78BFA" stroke-width="1.4"/><path d="M4 7l2 2 4-4" stroke="#A78BFA" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>38% Avg. Revenue Uplift</span>
+          </div>
+          <span class="trust-sep">|</span>
+          <div class="trust-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3 3.5.5-2.5 2.5.6 3.5L7 9l-3.1 1.5.6-3.5L2 4.5l3.5-.5L7 1z" fill="#A78BFA"/></svg>
+            <span class="mono">94%</span> Demand Forecast Accuracy
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Dashboard Viz -->
+      <div class="hero-viz fade-in">
+        <svg width="420" height="380" viewBox="0 0 420 380" xmlns="http://www.w3.org/2000/svg">
+          <!-- scan line animation -->
+          <rect width="420" height="380" fill="none"/>
+
+          <!-- header bar -->
+          <rect x="0" y="0" width="420" height="36" fill="rgba(124,58,237,.08)"/>
+          <circle cx="14" cy="18" r="5" fill="rgba(239,68,68,.7)"/>
+          <circle cx="30" cy="18" r="5" fill="rgba(245,158,11,.7)"/>
+          <circle cx="46" cy="18" r="5" fill="rgba(16,185,129,.7)"/>
+          <text x="200" y="22" font-family="JetBrains Mono,monospace" font-size="10" fill="rgba(167,139,250,.8)" text-anchor="middle" font-weight="600">SmartScale AI — Live Dashboard</text>
+
+          <!-- stat cards row -->
+          <g transform="translate(12,48)">
+            <rect width="118" height="52" rx="8" fill="rgba(124,58,237,.1)" stroke="rgba(124,58,237,.2)" stroke-width="1"/>
+            <text x="10" y="18" font-family="Inter,sans-serif" font-size="8" fill="rgba(167,139,250,.7)" font-weight="700">UTILIZATION</text>
+            <text x="10" y="36" font-family="JetBrains Mono,monospace" font-size="18" fill="#A78BFA" font-weight="700">84.2%</text>
+            <text x="10" y="47" font-family="Inter,sans-serif" font-size="7" fill="rgba(16,185,129,.8)">▲ +12% vs last week</text>
+          </g>
+          <g transform="translate(140,48)">
+            <rect width="118" height="52" rx="8" fill="rgba(6,182,212,.08)" stroke="rgba(6,182,212,.2)" stroke-width="1"/>
+            <text x="10" y="18" font-family="Inter,sans-serif" font-size="8" fill="rgba(6,182,212,.7)" font-weight="700">REVENUE / DAY</text>
+            <text x="10" y="36" font-family="JetBrains Mono,monospace" font-size="18" fill="#06B6D4" font-weight="700">$4,821</text>
+            <text x="10" y="47" font-family="Inter,sans-serif" font-size="7" fill="rgba(16,185,129,.8)">▲ +38% with AI pricing</text>
+          </g>
+          <g transform="translate(268,48)">
+            <rect width="140" height="52" rx="8" fill="rgba(245,158,11,.07)" stroke="rgba(245,158,11,.2)" stroke-width="1"/>
+            <text x="10" y="18" font-family="Inter,sans-serif" font-size="8" fill="rgba(245,158,11,.7)" font-weight="700">PEAK ALERT</text>
+            <text x="10" y="34" font-family="Inter,sans-serif" font-size="10" fill="#F59E0B" font-weight="700">⚡ Scaling to 6 ports</text>
+            <text x="10" y="47" font-family="Inter,sans-serif" font-size="7" fill="rgba(245,158,11,.6)">Today 5:30–8:00 PM predicted</text>
+          </g>
+
+          <!-- demand chart -->
+          <g transform="translate(12,114)">
+            <text x="0" y="12" font-family="Inter,sans-serif" font-size="9" fill="rgba(167,139,250,.7)" font-weight="700">HOURLY DEMAND FORECAST — TODAY</text>
+            <!-- y axis -->
+            <line x1="28" y1="16" x2="28" y2="116" stroke="rgba(124,58,237,.15)" stroke-width="1"/>
+            <line x1="28" y1="116" x2="395" y2="116" stroke="rgba(124,58,237,.15)" stroke-width="1"/>
+            <!-- grid lines -->
+            <line x1="28" y1="41" x2="395" y2="41" stroke="rgba(124,58,237,.07)" stroke-width="1" stroke-dasharray="4 3"/>
+            <line x1="28" y1="66" x2="395" y2="66" stroke="rgba(124,58,237,.07)" stroke-width="1" stroke-dasharray="4 3"/>
+            <line x1="28" y1="91" x2="395" y2="91" stroke="rgba(124,58,237,.07)" stroke-width="1" stroke-dasharray="4 3"/>
+            <!-- y labels -->
+            <text x="24" y="44" font-family="JetBrains Mono,monospace" font-size="7" fill="rgba(148,144,176,.6)" text-anchor="end">75</text>
+            <text x="24" y="69" font-family="JetBrains Mono,monospace" font-size="7" fill="rgba(148,144,176,.6)" text-anchor="end">50</text>
+            <text x="24" y="94" font-family="JetBrains Mono,monospace" font-size="7" fill="rgba(148,144,176,.6)" text-anchor="end">25</text>
+            <!-- actual bars (historical) — hours 6am–now ~2pm -->
+            <!-- each bar 15px wide, gap 3px, start x=30 -->
+            <rect x="30"  y="100" width="14" height="16"  rx="3" fill="rgba(124,58,237,.4)"/>
+            <rect x="48"  y="92"  width="14" height="24"  rx="3" fill="rgba(124,58,237,.4)"/>
+            <rect x="66"  y="82"  width="14" height="34"  rx="3" fill="rgba(124,58,237,.4)"/>
+            <rect x="84"  y="68"  width="14" height="48"  rx="3" fill="rgba(124,58,237,.5)"/>
+            <rect x="102" y="56"  width="14" height="60"  rx="3" fill="rgba(124,58,237,.55)"/>
+            <rect x="120" y="62"  width="14" height="54"  rx="3" fill="rgba(124,58,237,.5)"/>
+            <rect x="138" y="74"  width="14" height="42"  rx="3" fill="rgba(124,58,237,.45)"/>
+            <rect x="156" y="80"  width="14" height="36"  rx="3" fill="rgba(124,58,237,.45)"/>
+            <!-- AI forecast bars (future) with cyan color -->
+            <rect x="174" y="58"  width="14" height="58"  rx="3" fill="rgba(6,182,212,.35)" stroke="rgba(6,182,212,.5)" stroke-width="1" stroke-dasharray="2 1"/>
+            <rect x="192" y="32"  width="14" height="84"  rx="3" fill="rgba(6,182,212,.45)" stroke="rgba(6,182,212,.6)" stroke-width="1" stroke-dasharray="2 1"/>
+            <rect x="210" y="24"  width="14" height="92"  rx="3" fill="rgba(245,158,11,.45)" stroke="rgba(245,158,11,.7)" stroke-width="1" stroke-dasharray="2 1"/>
+            <rect x="228" y="20"  width="14" height="96"  rx="3" fill="rgba(245,158,11,.5)" stroke="rgba(245,158,11,.7)" stroke-width="1" stroke-dasharray="2 1"/>
+            <rect x="246" y="28"  width="14" height="88"  rx="3" fill="rgba(245,158,11,.45)" stroke="rgba(245,158,11,.7)" stroke-width="1" stroke-dasharray="2 1"/>
+            <rect x="264" y="50"  width="14" height="66"  rx="3" fill="rgba(6,182,212,.35)" stroke="rgba(6,182,212,.5)" stroke-width="1" stroke-dasharray="2 1"/>
+            <rect x="282" y="68"  width="14" height="48"  rx="3" fill="rgba(6,182,212,.3)" stroke="rgba(6,182,212,.4)" stroke-width="1" stroke-dasharray="2 1"/>
+            <rect x="300" y="82"  width="14" height="34"  rx="3" fill="rgba(6,182,212,.25)" stroke="rgba(6,182,212,.35)" stroke-width="1" stroke-dasharray="2 1"/>
+            <rect x="318" y="90"  width="14" height="26"  rx="3" fill="rgba(6,182,212,.2)" stroke="rgba(6,182,212,.3)" stroke-width="1" stroke-dasharray="2 1"/>
+            <!-- legend -->
+            <rect x="174" y="120" width="8" height="8" rx="2" fill="rgba(124,58,237,.6)"/>
+            <text x="185" y="128" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(148,144,176,.7)">Actual</text>
+            <rect x="218" y="120" width="8" height="8" rx="2" fill="rgba(6,182,212,.5)" stroke="rgba(6,182,212,.8)" stroke-width="1" stroke-dasharray="2 1"/>
+            <text x="229" y="128" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(148,144,176,.7)">AI Forecast</text>
+            <rect x="275" y="120" width="8" height="8" rx="2" fill="rgba(245,158,11,.6)" stroke="rgba(245,158,11,.9)" stroke-width="1" stroke-dasharray="2 1"/>
+            <text x="286" y="128" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(245,158,11,.8)">⚡ Peak Alert</text>
+            <!-- x labels -->
+            <text x="37"  y="130" font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(148,144,176,.5)" text-anchor="middle">6a</text>
+            <text x="55"  y="130" font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(148,144,176,.5)" text-anchor="middle">7a</text>
+            <text x="73"  y="130" font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(148,144,176,.5)" text-anchor="middle">8a</text>
+            <text x="91"  y="130" font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(148,144,176,.5)" text-anchor="middle">9a</text>
+            <text x="109" y="130" font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(148,144,176,.5)" text-anchor="middle">10a</text>
+            <text x="163" y="130" font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(148,144,176,.5)" text-anchor="middle">1p</text>
+            <text x="181" y="130" font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(6,182,212,.6)" text-anchor="middle" font-weight="700">now</text>
+            <text x="217" y="130" font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(245,158,11,.7)" text-anchor="middle">5p</text>
+            <text x="235" y="130" font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(245,158,11,.7)" text-anchor="middle">6p</text>
+            <text x="253" y="130" font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(245,158,11,.7)" text-anchor="middle">7p</text>
+            <text x="307" y="130" font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(148,144,176,.5)" text-anchor="middle">10p</text>
+            <!-- "now" cursor line -->
+            <line x1="181" y1="16" x2="181" y2="116" stroke="rgba(6,182,212,.5)" stroke-width="1" stroke-dasharray="3 2"/>
+          </g>
+
+          <!-- site recommendations mini panel -->
+          <g transform="translate(12,270)">
+            <text x="0" y="12" font-family="Inter,sans-serif" font-size="9" fill="rgba(167,139,250,.7)" font-weight="700">AI SITE RECOMMENDATIONS</text>
+            <g transform="translate(0,18)">
+              <rect width="160" height="42" rx="7" fill="rgba(124,58,237,.08)" stroke="rgba(124,58,237,.15)" stroke-width="1"/>
+              <circle cx="20" cy="21" r="10" fill="rgba(124,58,237,.2)"/>
+              <path d="M20 16C17.8 16 16 18 16 20.5c0 3 4 7 4 7s4-4 4-7C24 18 22.2 16 20 16z" stroke="#A78BFA" stroke-width="1.2" fill="none"/>
+              <circle cx="20" cy="20.5" r="1.8" stroke="#A78BFA" stroke-width="1" fill="none"/>
+              <text x="34" y="17" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="white">Harbor District, SF</text>
+              <text x="34" y="28" font-family="JetBrains Mono,monospace" font-size="8" fill="#A78BFA">Score: 94/100</text>
+              <text x="34" y="38" font-family="Inter,sans-serif" font-size="7" fill="rgba(16,185,129,.8)">Est. ROI 22 months</text>
+            </g>
+            <g transform="translate(170,18)">
+              <rect width="150" height="42" rx="7" fill="rgba(6,182,212,.07)" stroke="rgba(6,182,212,.15)" stroke-width="1"/>
+              <circle cx="18" cy="21" r="10" fill="rgba(6,182,212,.15)"/>
+              <path d="M18 16C15.8 16 14 18 14 20.5c0 3 4 7 4 7s4-4 4-7C22 18 20.2 16 18 16z" stroke="#06B6D4" stroke-width="1.2" fill="none"/>
+              <circle cx="18" cy="20.5" r="1.8" stroke="#06B6D4" stroke-width="1" fill="none"/>
+              <text x="32" y="17" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="white">Oakland I-880 Exit</text>
+              <text x="32" y="28" font-family="JetBrains Mono,monospace" font-size="8" fill="#06B6D4">Score: 87/100</text>
+              <text x="32" y="38" font-family="Inter,sans-serif" font-size="7" fill="rgba(16,185,129,.8)">Est. ROI 26 months</text>
+            </g>
+            <g transform="translate(330,18)">
+              <rect width="78" height="42" rx="7" fill="rgba(245,158,11,.07)" stroke="rgba(245,158,11,.15)" stroke-width="1"/>
+              <text x="10" y="18" font-family="Inter,sans-serif" font-size="8" fill="rgba(245,158,11,.7)" font-weight="600">PRICING NOW</text>
+              <text x="10" y="30" font-family="JetBrains Mono,monospace" font-size="11" fill="#F59E0B" font-weight="700">$0.38</text>
+              <text x="10" y="40" font-family="Inter,sans-serif" font-size="7" fill="rgba(245,158,11,.6)">/kWh · peak</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ WIDGET (Demo Request) ══ -->
+<section id="widget">
+  <div class="container">
+    <div class="widget-card fade-in">
+      <div class="widget-title">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L6 10h4l-1 8 7-10h-5l1-8z" fill="#A78BFA"/></svg>
+        Get a Personalised AI Demo
+      </div>
+      <div class="widget-grid">
+        <div class="widget-field">
+          <label>Your Name</label>
+          <input type="text" placeholder="Jane Smith"/>
+        </div>
+        <div class="widget-field">
+          <label>Work Email</label>
+          <input type="email" placeholder="jane@chargeops.com"/>
+        </div>
+        <div class="widget-field">
+          <label>Company / Network Name</label>
+          <input type="text" placeholder="e.g. AmpCharge Networks"/>
+        </div>
+        <div class="widget-field">
+          <label>Number of Charging Sites</label>
+          <select>
+            <option>1–5 sites</option>
+            <option>6–20 sites</option>
+            <option>21–100 sites</option>
+            <option>100+ sites</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-widget">Request My AI Demo →</button>
+      <p class="widget-note">We'll reach out within 1 business day. No commitment required — just a 30-min live walkthrough.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══ -->
+<section id="how">
+  <div class="container">
+    <div class="how-header fade-in">
+      <div class="section-tag">How It Works</div>
+      <h2 class="section-title">From Raw Data to <span>Revenue Intelligence.</span></h2>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card fade-in">
+        <div class="step-num">01</div>
+        <div class="step-icon">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="2" y="4" width="22" height="18" rx="3" stroke="#A78BFA" stroke-width="1.8" fill="none"/><path d="M7 10h12M7 14h8" stroke="#A78BFA" stroke-width="1.6" stroke-linecap="round"/><circle cx="20" cy="14" r="3" stroke="#06B6D4" stroke-width="1.5" fill="none"/><circle cx="20" cy="14" r="1" fill="#06B6D4"/></svg>
+        </div>
+        <h3>Connect Your Charger Network</h3>
+        <p>Integrate your charger management system via our API or native connectors. SmartScale ingests session logs, uptime data, and energy readings in real time.</p>
+      </div>
+      <div class="step-card fade-in">
+        <div class="step-num">02</div>
+        <div class="step-icon">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" stroke="#A78BFA" stroke-width="1.8" fill="none"/><path d="M9 13l2.5 2.5L18 9" stroke="#06B6D4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="13" cy="4" r="1.5" fill="#A78BFA"/><circle cx="13" cy="22" r="1.5" fill="#A78BFA"/><circle cx="4" cy="13" r="1.5" fill="#A78BFA"/><circle cx="22" cy="13" r="1.5" fill="#A78BFA"/></svg>
+        </div>
+        <h3>AI Learns Your Demand Patterns</h3>
+        <p>Our models are pre-trained on 2.1M+ SmartRoute sessions and fine-tune on your site's history — learning commute cycles, local events, seasonal shifts, and driver behaviour.</p>
+      </div>
+      <div class="step-card fade-in">
+        <div class="step-num">03</div>
+        <div class="step-icon">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M4 20l6-8 4 4 4-6 4 4" stroke="#A78BFA" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M13 2L10 8h3l-1 6 5-8h-3l1-4z" fill="#06B6D4" opacity=".7"/></svg>
+        </div>
+        <h3>Act on Live Recommendations</h3>
+        <p>Receive instant alerts to autoscale ports, adjust pricing, or greenlight a new site — all within your dashboard or pushed directly to your charger management system.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FEATURES ══ -->
+<section id="features">
+  <div class="container">
+    <div class="features-header fade-in">
+      <div class="section-tag">Capabilities</div>
+      <h2 class="section-title">Everything Operators Need to <span>Scale with Confidence</span></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feat-card fade-in">
+        <div class="feat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 17l4-8 4 4 3-5 4 5" stroke="#A78BFA" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3L9 9h3l-1 5 5-7h-3l1-4z" fill="#06B6D4" opacity=".7"/></svg>
+        </div>
+        <h3>Demand Forecasting</h3>
+        <p>AI models predict hourly session demand up to 7 days ahead with 94% accuracy — accounting for weather, events, and commuter patterns.</p>
+      </div>
+      <div class="feat-card fade-in">
+        <div class="feat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="12" width="4" height="9" rx="1" fill="#A78BFA" opacity=".5"/><rect x="8" y="8" width="4" height="13" rx="1" fill="#A78BFA" opacity=".7"/><rect x="14" y="4" width="4" height="17" rx="1" fill="#A78BFA"/><rect x="20" y="2" width="2" height="8" rx="1" fill="#06B6D4" stroke-dasharray="2"/><path d="M20 14v6" stroke="#06B6D4" stroke-width="2" stroke-dasharray="2 2" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Auto-Scaling Ports</h3>
+        <p>During predicted peaks, SmartScale automatically increases available ports and sends load-balancing commands to your charger hardware — no manual intervention.</p>
+      </div>
+      <div class="feat-card fade-in">
+        <div class="feat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#A78BFA" stroke-width="1.8" fill="none"/><path d="M12 7v5l3 3" stroke="#06B6D4" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="1.5" fill="#A78BFA"/></svg>
+        </div>
+        <h3>Dynamic Pricing Engine</h3>
+        <p>Automatically raise rates during peak demand and offer discounts off-peak — maximising revenue per kWh while keeping utilisation high and drivers happy.</p>
+      </div>
+      <div class="feat-card fade-in">
+        <div class="feat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2C8 2 5 5.5 5 9.5c0 5.5 7 12.5 7 12.5s7-7 7-12.5C19 5.5 16 2 12 2z" stroke="#A78BFA" stroke-width="1.8" fill="none"/><circle cx="12" cy="9.5" r="2.5" stroke="#06B6D4" stroke-width="1.5"/></svg>
+        </div>
+        <h3>New Site Intelligence</h3>
+        <p>Our AI cross-references SmartRoute travel data, EV ownership density, and competitor gaps to surface high-ROI installation sites ranked by projected revenue.</p>
+      </div>
+      <div class="feat-card fade-in">
+        <div class="feat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M2 12h20M12 2a10 10 0 010 20A10 10 0 0112 2z" stroke="#A78BFA" stroke-width="1.8" fill="none"/><path d="M8 12a8 8 0 008 0" stroke="#06B6D4" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <h3>Competitor & Market Radar</h3>
+        <p>Monitor rival charger networks in your geography. Get alerted when competitors open new locations and receive AI-suggested counter-strategies.</p>
+      </div>
+      <div class="feat-card fade-in">
+        <div class="feat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="2" stroke="#A78BFA" stroke-width="1.8" fill="none"/><rect x="14" y="3" width="7" height="7" rx="2" stroke="#A78BFA" stroke-width="1.8" fill="none"/><rect x="3" y="14" width="7" height="7" rx="2" stroke="#A78BFA" stroke-width="1.8" fill="none"/><rect x="14" y="14" width="7" height="7" rx="2" stroke="#06B6D4" stroke-width="1.8" fill="none"/><path d="M6.5 6.5h.01M17.5 6.5h.01M6.5 17.5h.01" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/><path d="M17.5 17.5h.01" stroke="#06B6D4" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Operator API & Integrations</h3>
+        <p>Push AI recommendations directly into OCPP charger systems, your billing platform, or custom dashboards via our REST API and webhook system.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DASHBOARD PREVIEW ══ -->
+<section id="dashboard-preview">
+  <div class="container">
+    <div class="preview-inner">
+      <div class="preview-text fade-in">
+        <div class="section-tag">Platform Preview</div>
+        <h2>All Your Sites.<br><span style="color:var(--primary-glow)">One AI Brain.</span></h2>
+        <ul class="preview-bullets">
+          <li>Live utilisation heatmap across all your charging locations</li>
+          <li>Per-site revenue breakdown with AI-attributed uplifts highlighted</li>
+          <li>Maintenance risk scores — predict hardware failures before they happen</li>
+          <li>Side-by-side scenario modelling: compare pricing strategies before going live</li>
+        </ul>
+        <a href="#widget" class="btn-outline-primary">Request Access →</a>
+      </div>
+      <div class="dashboard-mockup fade-in">
+        <svg width="100%" height="auto" viewBox="0 0 520 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <!-- bg -->
+          <rect width="520" height="400" fill="#0F0A1E"/>
+          <!-- top bar -->
+          <rect width="520" height="38" fill="rgba(124,58,237,.1)"/>
+          <rect x="12" y="11" width="80" height="16" rx="4" fill="rgba(124,58,237,.2)"/>
+          <text x="20" y="23" font-family="Inter,sans-serif" font-size="9" fill="rgba(167,139,250,.8)" font-weight="700">SmartScale AI</text>
+          <rect x="106" y="13" width="50" height="12" rx="3" fill="rgba(124,58,237,.15)"/>
+          <text x="114" y="22" font-family="Inter,sans-serif" font-size="8" fill="rgba(167,139,250,.6)">Overview</text>
+          <rect x="162" y="13" width="50" height="12" rx="3" fill="rgba(124,58,237,.15)"/>
+          <text x="170" y="22" font-family="Inter,sans-serif" font-size="8" fill="rgba(167,139,250,.6)">Sites</text>
+          <rect x="218" y="13" width="60" height="12" rx="3" fill="rgba(124,58,237,.15)"/>
+          <text x="226" y="22" font-family="Inter,sans-serif" font-size="8" fill="rgba(167,139,250,.6)">Forecasts</text>
+          <rect x="284" y="13" width="60" height="12" rx="3" fill="rgba(124,58,237,.15)"/>
+          <text x="292" y="22" font-family="Inter,sans-serif" font-size="8" fill="rgba(167,139,250,.6)">Pricing AI</text>
+          <!-- alert badge -->
+          <rect x="410" y="10" width="98" height="18" rx="6" fill="rgba(245,158,11,.15)" stroke="rgba(245,158,11,.4)" stroke-width="1"/>
+          <text x="418" y="22" font-family="Inter,sans-serif" font-size="8" fill="#F59E0B" font-weight="700">⚡ 3 Peak Alerts Active</text>
+
+          <!-- left sidebar -->
+          <rect x="0" y="38" width="130" height="362" fill="rgba(19,16,43,.6)"/>
+          <!-- nav items -->
+          <g transform="translate(10,55)">
+            <rect width="110" height="28" rx="6" fill="rgba(124,58,237,.2)"/>
+            <text x="12" y="18" font-family="Inter,sans-serif" font-size="9" fill="#A78BFA" font-weight="700">📊  Dashboard</text>
+          </g>
+          <g transform="translate(10,88)">
+            <text x="12" y="16" font-family="Inter,sans-serif" font-size="9" fill="rgba(148,144,176,.6)">📍  Sites (14)</text>
+          </g>
+          <g transform="translate(10,110)">
+            <text x="12" y="16" font-family="Inter,sans-serif" font-size="9" fill="rgba(148,144,176,.6)">⚡  Scaling</text>
+          </g>
+          <g transform="translate(10,132)">
+            <text x="12" y="16" font-family="Inter,sans-serif" font-size="9" fill="rgba(148,144,176,.6)">💰  Pricing</text>
+          </g>
+          <g transform="translate(10,154)">
+            <text x="12" y="16" font-family="Inter,sans-serif" font-size="9" fill="rgba(148,144,176,.6)">🗺️  New Sites</text>
+          </g>
+          <g transform="translate(10,176)">
+            <text x="12" y="16" font-family="Inter,sans-serif" font-size="9" fill="rgba(148,144,176,.6)">🔌  Maintenance</text>
+          </g>
+          <g transform="translate(10,198)">
+            <text x="12" y="16" font-family="Inter,sans-serif" font-size="9" fill="rgba(148,144,176,.6)">📈  Analytics</text>
+          </g>
+          <line x1="10" y1="224" x2="120" y2="224" stroke="rgba(124,58,237,.12)" stroke-width="1"/>
+          <g transform="translate(10,235)">
+            <text x="12" y="16" font-family="Inter,sans-serif" font-size="9" fill="rgba(148,144,176,.6)">⚙️  Settings</text>
+          </g>
+          <!-- mini utilisation widget in sidebar -->
+          <g transform="translate(8,268)">
+            <rect width="114" height="90" rx="8" fill="rgba(124,58,237,.08)" stroke="rgba(124,58,237,.15)" stroke-width="1"/>
+            <text x="8" y="16" font-family="Inter,sans-serif" font-size="8" fill="rgba(167,139,250,.6)" font-weight="700">NETWORK HEALTH</text>
+            <text x="8" y="34" font-family="JetBrains Mono,monospace" font-size="18" fill="#A78BFA" font-weight="700">84%</text>
+            <text x="8" y="46" font-family="Inter,sans-serif" font-size="7" fill="rgba(148,144,176,.6)">utilisation avg</text>
+            <rect x="8" y="55" width="98" height="6" rx="3" fill="rgba(124,58,237,.15)"/>
+            <rect x="8" y="55" width="82" height="6" rx="3" fill="url(#utilBar)"/>
+            <defs><linearGradient id="utilBar" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#06B6D4"/></linearGradient></defs>
+            <text x="8" y="74" font-family="Inter,sans-serif" font-size="7" fill="rgba(16,185,129,.8)">▲ +12% this week</text>
+            <text x="8" y="85" font-family="Inter,sans-serif" font-size="7" fill="rgba(148,144,176,.5)">14 sites · 127 ports</text>
+          </g>
+
+          <!-- main content area -->
+          <!-- KPI row -->
+          <g transform="translate(142,48)">
+            <rect width="88" height="52" rx="7" fill="rgba(124,58,237,.08)" stroke="rgba(124,58,237,.15)" stroke-width="1"/>
+            <text x="8" y="16" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(167,139,250,.6)" font-weight="700">REVENUE / MO</text>
+            <text x="8" y="32" font-family="JetBrains Mono,monospace" font-size="15" fill="#A78BFA" font-weight="700">$142K</text>
+            <text x="8" y="44" font-family="Inter,sans-serif" font-size="7" fill="rgba(16,185,129,.8)">▲ +38% vs manual</text>
+          </g>
+          <g transform="translate(238,48)">
+            <rect width="88" height="52" rx="7" fill="rgba(6,182,212,.07)" stroke="rgba(6,182,212,.15)" stroke-width="1"/>
+            <text x="8" y="16" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(6,182,212,.6)" font-weight="700">SESSIONS TODAY</text>
+            <text x="8" y="32" font-family="JetBrains Mono,monospace" font-size="15" fill="#06B6D4" font-weight="700">1,847</text>
+            <text x="8" y="44" font-family="Inter,sans-serif" font-size="7" fill="rgba(16,185,129,.8)">On track for +8%</text>
+          </g>
+          <g transform="translate(334,48)">
+            <rect width="88" height="52" rx="7" fill="rgba(245,158,11,.06)" stroke="rgba(245,158,11,.15)" stroke-width="1"/>
+            <text x="8" y="16" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(245,158,11,.7)" font-weight="700">PEAK IN</text>
+            <text x="8" y="32" font-family="JetBrains Mono,monospace" font-size="15" fill="#F59E0B" font-weight="700">3h 22m</text>
+            <text x="8" y="44" font-family="Inter,sans-serif" font-size="7" fill="rgba(245,158,11,.6)">Auto-scale queued</text>
+          </g>
+          <g transform="translate(430,48)">
+            <rect width="78" height="52" rx="7" fill="rgba(16,185,129,.06)" stroke="rgba(16,185,129,.15)" stroke-width="1"/>
+            <text x="8" y="16" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(16,185,129,.6)" font-weight="700">UPTIME</text>
+            <text x="8" y="32" font-family="JetBrains Mono,monospace" font-size="15" fill="#10B981" font-weight="700">99.1%</text>
+            <text x="8" y="44" font-family="Inter,sans-serif" font-size="7" fill="rgba(16,185,129,.8)">All sites healthy</text>
+          </g>
+
+          <!-- heatmap -->
+          <g transform="translate(142,112)">
+            <text x="0" y="12" font-family="Inter,sans-serif" font-size="8.5" fill="rgba(167,139,250,.7)" font-weight="700">SITE UTILISATION HEATMAP — LIVE</text>
+            <!-- 7 cols × 4 rows of sites -->
+            <!-- row 1 -->
+            <rect x="0"   y="18" width="48" height="30" rx="5" fill="rgba(124,58,237,.65)"/>
+            <rect x="54"  y="18" width="48" height="30" rx="5" fill="rgba(124,58,237,.45)"/>
+            <rect x="108" y="18" width="48" height="30" rx="5" fill="rgba(245,158,11,.55)"/>
+            <rect x="162" y="18" width="48" height="30" rx="5" fill="rgba(239,68,68,.55)"/>
+            <rect x="216" y="18" width="48" height="30" rx="5" fill="rgba(124,58,237,.3)"/>
+            <rect x="270" y="18" width="48" height="30" rx="5" fill="rgba(6,182,212,.35)"/>
+            <rect x="324" y="18" width="48" height="30" rx="5" fill="rgba(124,58,237,.25)"/>
+            <!-- row 2 -->
+            <rect x="0"   y="54" width="48" height="30" rx="5" fill="rgba(16,185,129,.4)"/>
+            <rect x="54"  y="54" width="48" height="30" rx="5" fill="rgba(124,58,237,.7)"/>
+            <rect x="108" y="54" width="48" height="30" rx="5" fill="rgba(239,68,68,.65)"/>
+            <rect x="162" y="54" width="48" height="30" rx="5" fill="rgba(124,58,237,.5)"/>
+            <rect x="216" y="54" width="48" height="30" rx="5" fill="rgba(245,158,11,.35)"/>
+            <rect x="270" y="54" width="48" height="30" rx="5" fill="rgba(6,182,212,.25)"/>
+            <rect x="324" y="54" width="48" height="30" rx="5" fill="rgba(16,185,129,.3)"/>
+            <!-- row labels -->
+            <text x="16"  y="37" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">92%</text>
+            <text x="78"  y="37" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">74%</text>
+            <text x="132" y="37" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">88%</text>
+            <text x="186" y="37" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">96%</text>
+            <text x="240" y="37" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">61%</text>
+            <text x="294" y="37" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">55%</text>
+            <text x="348" y="37" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">48%</text>
+            <text x="16"  y="73" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">67%</text>
+            <text x="78"  y="73" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">95%</text>
+            <text x="132" y="73" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">98%</text>
+            <text x="186" y="73" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">81%</text>
+            <text x="240" y="73" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">72%</text>
+            <text x="294" y="73" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">44%</text>
+            <text x="348" y="73" font-family="JetBrains Mono,monospace" font-size="7" fill="white" text-anchor="middle">58%</text>
+            <!-- legend -->
+            <text x="0"  y="100" font-family="Inter,sans-serif" font-size="7" fill="rgba(148,144,176,.5)">Low</text>
+            <rect x="20" y="91" width="180" height="7" rx="3" fill="url(#heatLegend)"/>
+            <defs><linearGradient id="heatLegend" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="rgba(6,182,212,.4)"/>
+              <stop offset="50%" stop-color="rgba(124,58,237,.7)"/>
+              <stop offset="100%" stop-color="rgba(239,68,68,.8)"/>
+            </linearGradient></defs>
+            <text x="202" y="100" font-family="Inter,sans-serif" font-size="7" fill="rgba(148,144,176,.5)">High</text>
+          </g>
+
+          <!-- AI insight panel -->
+          <g transform="translate(142,252)">
+            <text x="0" y="12" font-family="Inter,sans-serif" font-size="8.5" fill="rgba(167,139,250,.7)" font-weight="700">AI INSIGHTS</text>
+            <g transform="translate(0,18)">
+              <rect width="184" height="56" rx="7" fill="rgba(124,58,237,.08)" stroke="rgba(124,58,237,.2)" stroke-width="1"/>
+              <text x="10" y="15" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(167,139,250,.8)" font-weight="700">📈 Scale Recommendation</text>
+              <text x="10" y="27" font-family="Inter,sans-serif" font-size="7" fill="rgba(226,224,240,.7)">Harbor Dist: activate 2 extra</text>
+              <text x="10" y="38" font-family="Inter,sans-serif" font-size="7" fill="rgba(226,224,240,.7)">ports at 5:30 PM today.</text>
+              <rect x="10" y="44" width="60" height="7" rx="3" fill="rgba(124,58,237,.3)"/>
+              <text x="22" y="50" font-family="Inter,sans-serif" font-size="6.5" fill="white" font-weight="700">Apply Now →</text>
+            </g>
+            <g transform="translate(190,18)">
+              <rect width="184" height="56" rx="7" fill="rgba(6,182,212,.07)" stroke="rgba(6,182,212,.18)" stroke-width="1"/>
+              <text x="10" y="15" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(6,182,212,.9)" font-weight="700">💰 Pricing Update</text>
+              <text x="10" y="27" font-family="Inter,sans-serif" font-size="7" fill="rgba(226,224,240,.7)">Raise peak rate to $0.38/kWh</text>
+              <text x="10" y="38" font-family="Inter,sans-serif" font-size="7" fill="rgba(226,224,240,.7)">+$280 projected uplift today.</text>
+              <rect x="10" y="44" width="60" height="7" rx="3" fill="rgba(6,182,212,.3)"/>
+              <text x="18" y="50" font-family="Inter,sans-serif" font-size="6.5" fill="white" font-weight="700">Apply Pricing →</text>
+            </g>
+          </g>
+
+          <!-- new site card -->
+          <g transform="translate(142,328)">
+            <rect width="366" height="60" rx="7" fill="rgba(245,158,11,.06)" stroke="rgba(245,158,11,.2)" stroke-width="1"/>
+            <text x="12" y="18" font-family="Inter,sans-serif" font-size="8.5" fill="rgba(245,158,11,.9)" font-weight="700">🗺️ New Site Opportunity — Confidence: HIGH</text>
+            <text x="12" y="32" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(226,224,240,.6)">Emeryville BART Station · Projected 340 sessions/day · Est. payback: 20 months</text>
+            <text x="12" y="45" font-family="Inter,sans-serif" font-size="7" fill="rgba(148,144,176,.5)">Based on 12,400 SmartRoute trips passing within 0.5mi in last 30 days</text>
+            <rect x="290" y="20" width="64" height="22" rx="5" fill="rgba(245,158,11,.2)" stroke="rgba(245,158,11,.4)" stroke-width="1"/>
+            <text x="308" y="35" font-family="Inter,sans-serif" font-size="8" fill="#F59E0B" font-weight="700">View →</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TESTIMONIALS ══ -->
+<section id="testimonials">
+  <div class="container">
+    <div class="testi-header fade-in">
+      <div class="section-tag">Testimonials</div>
+      <h2 class="section-title">Trusted by Charging Operators <span>Worldwide</span></h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card fade-in">
+        <div class="stars">
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+        </div>
+        <blockquote>"SmartScale's dynamic pricing alone paid for 18 months of subscription in the first quarter. The peak demand forecasts are frighteningly accurate — we've never had a queue complaint since."</blockquote>
+        <div class="testi-author">
+          <div class="avatar">DL</div>
+          <div class="author-info">
+            <div class="author-name">David Lau</div>
+            <div class="author-ev">VP Operations · AmpCharge Networks (42 sites)</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card fade-in">
+        <div class="stars">
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+        </div>
+        <blockquote>"We used SmartScale's site intelligence to open 3 new locations last year. Every single one hit profitability ahead of projection. The competitor radar feature alone is worth the price."</blockquote>
+        <div class="testi-author">
+          <div class="avatar" style="background:var(--accent)">RM</div>
+          <div class="author-info">
+            <div class="author-name">Riya Mehta</div>
+            <div class="author-ev">CEO · VoltGrid Europe (89 sites)</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card fade-in">
+        <div class="stars">
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" fill="#A78BFA"/></svg>
+        </div>
+        <blockquote>"The maintenance risk scoring caught a failing EVSE controller 11 days before it would have gone offline. That single prediction saved us $18,000 in lost revenue and an emergency repair."</blockquote>
+        <div class="testi-author">
+          <div class="avatar" style="background:#1E1B4B">TC</div>
+          <div class="author-info">
+            <div class="author-name">Tom Chen</div>
+            <div class="author-ev">Head of Infrastructure · MegaCharge US (210 sites)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="brand-row fade-in">
+      <span class="brand-label">Powers networks using:</span>
+      <span class="brand-tag">OCPP 2.0</span>
+      <span class="brand-tag">ChargePoint API</span>
+      <span class="brand-tag">Electrify America</span>
+      <span class="brand-tag">EVgo</span>
+      <span class="brand-tag">AMPECO</span>
+      <span class="brand-tag">Driivz</span>
+      <span class="brand-tag">Custom CMS</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATS ══ -->
+<section id="stats">
+  <div class="stats-wave-top">
+    <svg viewBox="0 0 1440 50" preserveAspectRatio="none" style="height:50px;display:block"><path d="M0,50 C360,0 1080,0 1440,50 L1440,0 L0,0 Z" fill="#0F0A1E"/></svg>
+  </div>
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item fade-in">
+        <div class="stat-num mono" data-target="2100000" data-suffix="+">0+</div>
+        <div class="stat-label">Sessions Analysed</div>
+      </div>
+      <div class="stat-item fade-in">
+        <div class="stat-num mono" data-target="38" data-suffix="%">0%</div>
+        <div class="stat-label">Avg. Revenue Uplift</div>
+      </div>
+      <div class="stat-item fade-in">
+        <div class="stat-num mono" data-target="94" data-suffix="%">0%</div>
+        <div class="stat-label">Forecast Accuracy</div>
+      </div>
+      <div class="stat-item fade-in">
+        <div class="stat-num mono" data-target="1200" data-suffix="+">0+</div>
+        <div class="stat-label">Operator Sites Managed</div>
+      </div>
+    </div>
+  </div>
+  <div class="stats-wave-bot">
+    <svg viewBox="0 0 1440 50" preserveAspectRatio="none" style="height:50px;display:block"><path d="M0,50 C360,0 1080,0 1440,50 L1440,0 L0,0 Z" fill="#13102B"/></svg>
+  </div>
+</section>
+
+<!-- ══ PRICING ══ -->
+<section id="pricing">
+  <div class="container">
+    <div class="pricing-header fade-in">
+      <div class="section-tag">Pricing</div>
+      <h2 class="section-title">Grow Your Network. <span>Pay as You Scale.</span></h2>
+    </div>
+    <div class="billing-toggle fade-in">
+      <span id="label-monthly" class="active-label">Monthly</span>
+      <button class="toggle-switch" id="billingToggle" onclick="toggleBilling()" aria-label="Toggle billing"><div class="toggle-knob"></div></button>
+      <span id="label-annual">Annual</span>
+      <span class="discount-badge" id="discount-badge" style="opacity:0">Save 20%</span>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card fade-in">
+        <div class="price-plan">Starter</div>
+        <div class="price-amount"><sup>$</sup><span class="price-monthly">199</span><span class="price-annual" style="display:none">159</span><span class="period">/mo</span></div>
+        <div class="price-desc">For independent operators getting started with AI insights.</div>
+        <ul class="price-features">
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Up to 5 charging sites</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Demand forecasting (7-day)</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Dynamic pricing engine</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Email alerts</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Standard integrations</li>
+        </ul>
+        <button class="btn-price">Get Started</button>
+      </div>
+      <div class="price-card popular fade-in">
+        <div class="popular-badge">Most Popular</div>
+        <div class="price-plan">Growth</div>
+        <div class="price-amount"><sup>$</sup><span class="price-monthly">599</span><span class="price-annual" style="display:none">479</span><span class="period">/mo</span></div>
+        <div class="price-desc">For growing networks that need full AI-powered automation.</div>
+        <ul class="price-features">
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Up to 50 sites</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Auto-scaling port control</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>New site intelligence</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Competitor radar</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Maintenance risk scoring</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Full API access</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Priority support</li>
+        </ul>
+        <button class="btn-price">Start Growth Trial →</button>
+      </div>
+      <div class="price-card fade-in">
+        <div class="price-plan">Enterprise</div>
+        <div class="price-amount" style="font-size:2rem">Custom</div>
+        <div class="price-desc">For large networks, utilities, and white-label deployments.</div>
+        <ul class="price-features">
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Unlimited sites</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Custom AI model training</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>White-label dashboard</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>Dedicated AI data scientist</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>SLA + uptime guarantees</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>On-premise deployment option</li>
+        </ul>
+        <button class="btn-price">Contact Sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FAQ ══ -->
+<section id="faq">
+  <div class="container">
+    <div class="faq-header fade-in">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-title">Common <span>Questions</span></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What charger management systems does SmartScale integrate with?<span class="faq-icon"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></button>
+        <div class="faq-a"><p>SmartScale connects natively with OCPP 1.6 and 2.0 compatible systems, ChargePoint CMS, Driivz, AMPECO, EV Connect, and Greenlots. For custom or proprietary CMS platforms, our REST API and webhook system enables full integration within days. Our onboarding team handles setup end-to-end.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How does SmartScale get its demand forecast data?<span class="faq-icon"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></button>
+        <div class="faq-a"><p>Our AI models are pre-trained on 2.1M+ anonymised charging sessions from the SmartRoute driver network, then fine-tuned on your site's own historical data. We also incorporate local event calendars, weather forecasts, public EV registration data, and proximity to workplaces and transport hubs to achieve 94% forecast accuracy.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Can SmartScale actually send commands to my charger hardware?<span class="faq-icon"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></button>
+        <div class="faq-a"><p>Yes — with Growth and Enterprise plans, SmartScale can send OCPP commands directly to your hardware for auto-scaling, load balancing, and pricing updates. All automated actions are configurable with approval thresholds, and you can always switch to "advisory mode" where the AI recommends but doesn't act without your confirmation.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How are new site recommendations generated?<span class="faq-icon"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></button>
+        <div class="faq-a"><p>Site scores combine five signals: (1) SmartRoute trip density — how many EV drivers pass through or stop near the location, (2) current charger desert gaps, (3) EV ownership density from registration data, (4) competitor saturation, and (5) site type multipliers (retail, office, transit hub). Each recommended site includes projected sessions per day, estimated payback period, and optimal charger spec.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Is my charging session data kept private?<span class="faq-icon"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></button>
+        <div class="faq-a"><p>All session data is anonymised at ingestion — no driver PII is ever stored. Your site-level performance data is fully isolated from other operators; we use federated learning techniques so your data improves your models only. Enterprise customers can opt for on-premise deployment for complete data sovereignty.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What's the typical ROI timeline for SmartScale?<span class="faq-icon"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></button>
+        <div class="faq-a"><p>Based on our 1,200+ managed sites, operators see an average 38% revenue increase within 90 days — primarily from dynamic pricing and reduced charger idle time. Starter plan customers typically recover the subscription cost within the first month. We offer a free 30-day pilot with full feature access so you can measure ROI before committing.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA BANNER ══ -->
+<section id="cta-banner">
+  <div class="cta-grid-bg"></div>
+  <div class="cta-orb"></div>
+  <div class="container cta-banner-inner fade-in">
+    <h2>Your Network.<br><span>Supercharged by AI.</span></h2>
+    <p>Join 1,200+ charging sites already growing smarter with SmartScale AI.</p>
+    <div class="cta-email-row">
+      <input type="email" class="cta-email-input" placeholder="your@company.com"/>
+      <button class="btn-cta-big">Book a Free Demo →</button>
+    </div>
+    <div style="font-size:.82rem;color:rgba(255,255,255,.25);margin-bottom:12px">or</div>
+    <button class="btn-cta-outline">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8.25" stroke="currentColor" stroke-width="1.5"/><path d="M7 6l5 3-5 3V6z" fill="currentColor"/></svg>
+      Watch a 3-Minute Walkthrough
+    </button>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="url(#foot-grad)"/><defs><linearGradient id="foot-grad" x1="0" y1="0" x2="32" y2="32"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#06B6D4"/></linearGradient></defs><circle cx="16" cy="13" r="6" stroke="white" stroke-width="1.5" fill="none"/><path d="M13 13 Q14 11 16 13 Q18 15 19 13" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/><path d="M16 19v3M12 21h8" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+          SmartScale AI
+        </div>
+        <p class="footer-tagline">AI-powered charging network intelligence. Built on the SmartRoute ecosystem.</p>
+        <div class="social-row">
+          <a href="#" class="social-btn"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M12.6 1h2.5L9.7 7.2 16 15h-4.7L7.7 10 3 15H.5l5.8-6.6L0 1h4.8l3.3 4.4L12.6 1zm-.9 12.5h1.4L4.4 2.5H2.9l8.8 11z" fill="rgba(255,255,255,.5)"/></svg></a>
+          <a href="#" class="social-btn"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 3.5A1.5 1.5 0 103.5 2 1.5 1.5 0 002 3.5zM2.5 6H4.5v8H2.5V6zM6 6H8v1.1C8.5 6.4 9.4 6 10.3 6 12.3 6 13.5 7.2 13.5 9.3V14h-2V9.7c0-.9-.4-1.7-1.4-1.7S8.5 8.8 8.5 10V14H6.5V6H6z" fill="rgba(255,255,255,.5)"/></svg></a>
+          <a href="#" class="social-btn"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="3" stroke="rgba(255,255,255,.5)" stroke-width="1.4"/><circle cx="8" cy="8" r="3" stroke="rgba(255,255,255,.5)" stroke-width="1.4"/><circle cx="11.5" cy="4.5" r="1" fill="rgba(255,255,255,.5)"/></svg></a>
+          <a href="#" class="social-btn"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="3" stroke="rgba(255,255,255,.5)" stroke-width="1.4"/><path d="M6.5 6l4 2-4 2V6z" fill="rgba(255,255,255,.5)"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#">AI Dashboard</a></li>
+          <li><a href="#">Demand Forecasting</a></li>
+          <li><a href="#">Dynamic Pricing</a></li>
+          <li><a href="#">Site Intelligence</a></li>
+          <li><a href="#">API Docs</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Research Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="index.html">SmartRoute App</a></li>
+          <li><a href="#">Partners</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">Help Centre</a></li>
+          <li><a href="#">Integration Guides</a></li>
+          <li><a href="#">System Status</a></li>
+          <li><a href="#">Contact Sales</a></li>
+          <li><a href="#">Security</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <span>© 2025 SmartRoute, Inc. — SmartScale AI. All rights reserved.</span>
+      <div class="footer-bar-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Settings</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── NAV ──
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 20);
+});
+function toggleDrawer(){
+  document.getElementById('mobile-drawer').classList.toggle('open');
+}
+function handleTab(tab){
+  if(tab === 'home'){
+    window.location.href = 'index.html';
+    return;
+  }
+  document.getElementById('tab-ai').classList.add('active');
+  document.getElementById('tab-home').classList.remove('active');
+}
+
+// ── SCROLL ANIMATIONS ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ── FAQ ──
+function toggleFaq(btn){
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+
+// ── BILLING TOGGLE ──
+let isAnnual = false;
+function toggleBilling(){
+  isAnnual = !isAnnual;
+  document.getElementById('billingToggle').classList.toggle('annual', isAnnual);
+  document.getElementById('label-monthly').classList.toggle('active-label', !isAnnual);
+  document.getElementById('label-annual').classList.toggle('active-label', isAnnual);
+  document.getElementById('discount-badge').style.opacity = isAnnual ? '1' : '0';
+  document.querySelectorAll('.price-monthly').forEach(el => el.style.display = isAnnual ? 'none' : '');
+  document.querySelectorAll('.price-annual').forEach(el => el.style.display = isAnnual ? '' : 'none');
+}
+
+// ── STATS COUNT-UP ──
+function formatNum(n){
+  if(n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if(n >= 1000) return Math.round(n/1000) + 'K';
+  return Math.round(n).toString();
+}
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      const el = e.target;
+      const target = +el.dataset.target;
+      const suffix = el.dataset.suffix || '';
+      const duration = 1600;
+      const start = performance.now();
+      function update(now){
+        const progress = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        el.textContent = formatNum(Math.floor(ease * target)) + suffix;
+        if(progress < 1) requestAnimationFrame(update);
+        else el.textContent = formatNum(target) + suffix;
+      }
+      requestAnimationFrame(update);
+      statsObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.stat-num[data-target]').forEach(el => statsObserver.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartRoute — EV Navigation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f1923;
+      --surface:  #131f2e;
+      --card:     #1a2535;
+      --card-2:   #0d1520;
+      --border:   #1a2d42;
+      --border-2: #1e3a5f;
+      --blue:     #3b82f6;
+      --blue-lt:  #93c5fd;
+      --blue-dk:  #0d1f35;
+      --green:    #10b981;
+      --red:      #ef4444;
+      --text-pri: #e2e8f0;
+      --text-sec: #94a3b8;
+      --text-mut: #4b5a6e;
+      --text-dim: #334155;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-pri);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ─────────────────────────────────────── */
+    nav {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--card);
+      border: 1.5px solid var(--blue);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-text {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-pri);
+      letter-spacing: -0.3px;
+    }
+
+    .nav-badge {
+      font-size: 11px;
+      color: var(--blue-lt);
+      background: var(--blue-dk);
+      border: 1px solid var(--border-2);
+      padding: 5px 14px;
+      border-radius: 20px;
+      letter-spacing: 0.4px;
+    }
+
+    /* ── HERO ────────────────────────────────────── */
+    .hero {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 32px 72px;
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 56px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--blue);
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 42px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.12;
+      letter-spacing: -1px;
+      margin-bottom: 18px;
+    }
+
+    h1 span { color: var(--blue); }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--text-sec);
+      line-height: 1.7;
+      max-width: 420px;
+      margin-bottom: 32px;
+    }
+
+    .ver-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--blue-dk);
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 11px;
+      color: var(--blue);
+      margin-bottom: 28px;
+    }
+
+    .ver-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    /* ── DOWNLOAD BUTTONS ────────────────────────── */
+    .dl-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 340px;
+    }
+
+    .dl-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 15px 20px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.15s ease, transform 0.1s ease;
+      width: 100%;
+    }
+
+    .dl-btn:active { transform: scale(0.98); }
+
+    .dl-btn-android {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .dl-btn-android:hover { opacity: 0.88; }
+
+    .dl-btn-ios {
+      background: var(--card);
+      color: var(--text-mut);
+      border: 1.5px solid var(--border);
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .dl-icon {
+      width: 38px;
+      height: 38px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dl-icon svg { width: 30px; height: 30px; }
+
+    .dl-label {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+
+    .dl-sub {
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.7;
+      letter-spacing: 0.2px;
+    }
+
+    .dl-name {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    .dl-ios-sub { color: var(--text-mut); }
+    .dl-ios-name { color: var(--text-mut); }
+
+    .dl-arrow {
+      margin-left: auto;
+      opacity: 0.65;
+      flex-shrink: 0;
+    }
+
+    .soon-badge {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--blue);
+      background: var(--blue-dk);
+      border: 1px solid var(--border-2);
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.4px;
+      flex-shrink: 0;
+    }
+
+    /* ── PHONE MOCKUP ────────────────────────────── */
+    .phone-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 8px;
+    }
+
+    .phone {
+      width: 210px;
+      height: 420px;
+      background: var(--card-2);
+      border: 2px solid var(--border-2);
+      border-radius: 36px;
+      padding: 9px;
+      position: relative;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: var(--card);
+      border-radius: 28px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .phone-notch {
+      width: 60px;
+      height: 18px;
+      background: var(--card-2);
+      border-radius: 0 0 10px 10px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+
+    .map-bg {
+      width: 100%;
+      height: 100%;
+      background: #1e2e42;
+      position: relative;
+    }
+
+    .route-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .phone-status {
+      position: absolute;
+      top: 6px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 6;
+    }
+
+    .phone-time {
+      font-size: 9px;
+      color: var(--text-pri);
+      font-weight: 600;
+    }
+
+    .phone-icons {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .phone-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text-sec);
+    }
+
+    .floating-pill {
+      position: absolute;
+      bottom: 110px;
+      left: 10px;
+      right: 10px;
+      background: rgba(15, 25, 35, 0.93);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      border-radius: 12px;
+      padding: 8px 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      z-index: 5;
+    }
+
+    .ps { display: flex; flex-direction: column; flex: 1; }
+    .ps-l { font-size: 7px; color: #64748b; letter-spacing: 0.5px; }
+    .ps-v { font-size: 11px; font-weight: 600; color: var(--text-pri); }
+    .ps-vg { font-size: 11px; font-weight: 600; color: var(--green); }
+    .pd { width: 1px; height: 22px; background: var(--border); }
+
+    .bottom-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 106px;
+      background: var(--bg);
+      border-radius: 20px 20px 28px 28px;
+      padding: 12px 12px 16px;
+    }
+
+    .drag-handle {
+      width: 28px;
+      height: 3px;
+      background: rgba(255,255,255,0.13);
+      border-radius: 2px;
+      margin: 0 auto 10px;
+    }
+
+    .field {
+      background: var(--card);
+      border-radius: 8px;
+      padding: 7px 10px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .field-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .field-text {
+      font-size: 8px;
+      color: var(--text-sec);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── FEATURES ────────────────────────────────── */
+    .features {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 32px 64px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .feat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 20px;
+      transition: border-color 0.2s;
+    }
+
+    .feat:hover { border-color: var(--border-2); }
+
+    .feat-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--blue-dk);
+      border: 1px solid var(--border-2);
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .feat-icon svg { width: 19px; height: 19px; }
+
+    .feat-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-pri);
+      margin-bottom: 6px;
+    }
+
+    .feat-desc {
+      font-size: 12.5px;
+      color: #64748b;
+      line-height: 1.55;
+    }
+
+    /* ── FOOTER ──────────────────────────────────── */
+    footer {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 32px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 12px;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────── */
+    @media (max-width: 680px) {
+      h1 { font-size: 30px; }
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 32px 20px 56px;
+        gap: 40px;
+      }
+      .phone-wrap { order: -1; }
+      .features {
+        grid-template-columns: 1fr 1fr;
+        padding: 0 20px 48px;
+      }
+      nav { padding: 20px; }
+      footer { flex-direction: column; gap: 8px; padding: 20px; }
+    }
+
+    @media (max-width: 420px) {
+      .features { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="logo" href="#">
+      <div class="logo-icon">
+  <img src="assets/images/smartroute.png" alt="Logo" width="36" height="36">
+</div>
+      <span class="logo-text">SmartRoute</span>
+    </a>
+    <span class="nav-badge">EV Navigation</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Available now</p>
+      <h1>Navigate smarter,<br>charge <span>effortlessly</span></h1>
+      <p class="hero-sub">
+        Real-time EV routing with intelligent charging stops, live traffic, and a full-screen map that keeps up with you.
+      </p>
+
+      <div class="ver-badge">
+        <span class="ver-dot"></span>
+        v1.0.0 &mdash; latest release
+      </div>
+
+      <div class="dl-buttons">
+        <!-- Android — links to APK in same directory -->
+        <a class="dl-btn dl-btn-android" href="smartroute.apk" download>
+          <div class="dl-icon">
+            <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5.5 21c0 1.1.9 2 2 2H8v4.5c0 .83.67 1.5 1.5 1.5S11 28.33 11 27.5V23h2v4.5c0 .83.67 1.5 1.5 1.5S16 28.33 16 27.5V23h.5c1.1 0 2-.9 2-2V11h-13V21z" fill="white" opacity="0.9"/>
+              <path d="M3 11c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-7C4.5 11.67 3.83 11 3 11zm22.5 0c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5S27 20.33 27 19.5v-7c0-.83-.67-1.5-1.5-1.5z" fill="white" opacity="0.85"/>
+              <path d="M18.5 10h-9.5C9 7.1 11.1 4.6 14 3.8L12.8 2H14l1.1 1.85A7.9 7.9 0 0 1 17.5 3.6L18.6 2H20l-1.25 2.2C21.9 5.1 24 7.6 24 10.5H18.5z" fill="white" opacity="0.75"/>
+              <circle cx="12" cy="7.5" r="1.1" fill="#3b82f6"/>
+              <circle cx="17.5" cy="7.5" r="1.1" fill="#3b82f6"/>
+            </svg>
+          </div>
+          <div class="dl-label">
+            <span class="dl-sub">Download for</span>
+            <span class="dl-name">Android</span>
+          </div>
+          <svg class="dl-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+
+        <!-- iOS — greyed out, coming soon -->
+        <div class="dl-btn dl-btn-ios" aria-disabled="true">
+          <div class="dl-icon">
+            <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 16c-.02-3.3 2.7-4.9 2.82-4.97-1.54-2.24-3.93-2.55-4.78-2.58-2.04-.21-3.99 1.21-5.02 1.21-1.04 0-2.65-1.18-4.35-1.15-2.24.03-4.31 1.31-5.46 3.3C2.87 16.06 4.6 22.1 6.8 25.4c1.1 1.6 2.42 3.4 4.15 3.34 1.67-.07 2.3-1.08 4.32-1.08 2 0 2.58 1.08 4.34 1.04 1.8-.03 2.94-1.64 4.03-3.26 1.27-1.85 1.79-3.65 1.82-3.74-.04-.01-3.55-1.36-3.57-5.43z" fill="#2d3f54"/>
+              <path d="M18.8 6.35c.93-1.12 1.55-2.67 1.38-4.23-1.33.05-2.94.88-3.89 1.99-.85.98-1.6 2.57-1.4 4.08 1.47.11 2.97-.75 3.91-1.84z" fill="#2d3f54"/>
+            </svg>
+          </div>
+          <div class="dl-label">
+            <span class="dl-sub dl-ios-sub">Coming to</span>
+            <span class="dl-name dl-ios-name">iOS</span>
+          </div>
+          <span class="soon-badge">Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="map-bg">
+            <svg class="route-svg" viewBox="0 0 192 402" xmlns="http://www.w3.org/2000/svg">
+              <!-- Road grid -->
+              <line x1="0" y1="90" x2="192" y2="90" stroke="#1e3a5f" stroke-width="5"/>
+              <line x1="0" y1="180" x2="192" y2="180" stroke="#1e3a5f" stroke-width="5"/>
+              <line x1="0" y1="270" x2="192" y2="270" stroke="#1e3a5f" stroke-width="5"/>
+              <line x1="0" y1="360" x2="192" y2="360" stroke="#1e3a5f" stroke-width="5"/>
+              <line x1="48" y1="0" x2="48" y2="402" stroke="#1e3a5f" stroke-width="5"/>
+              <line x1="96" y1="0" x2="96" y2="402" stroke="#1e3a5f" stroke-width="5"/>
+              <line x1="144" y1="0" x2="144" y2="402" stroke="#1e3a5f" stroke-width="5"/>
+              <line x1="0" y1="135" x2="192" y2="135" stroke="#1e3a5f" stroke-width="1.5" opacity="0.45"/>
+              <line x1="0" y1="225" x2="192" y2="225" stroke="#1e3a5f" stroke-width="1.5" opacity="0.45"/>
+              <line x1="0" y1="315" x2="192" y2="315" stroke="#1e3a5f" stroke-width="1.5" opacity="0.45"/>
+              <line x1="72" y1="0" x2="72" y2="402" stroke="#1e3a5f" stroke-width="1.5" opacity="0.45"/>
+              <line x1="120" y1="0" x2="120" y2="402" stroke="#1e3a5f" stroke-width="1.5" opacity="0.45"/>
+              <!-- Route -->
+              <polyline points="48,320 72,260 96,205 120,160 144,115 162,88" fill="none" stroke="#3b82f6" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="48,320 72,260 96,205 120,160 144,115 162,88" fill="none" stroke="#93c5fd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Origin -->
+              <circle cx="48" cy="320" r="8" fill="#3b82f6" stroke="#0d1520" stroke-width="2.5"/>
+              <circle cx="48" cy="320" r="3.5" fill="white"/>
+              <!-- Charging stop -->
+              <circle cx="120" cy="160" r="9" fill="#10b981" stroke="#0d1520" stroke-width="2.5"/>
+              <text x="120" y="164" text-anchor="middle" font-size="9" fill="white" font-weight="bold">⚡</text>
+              <!-- Destination -->
+              <circle cx="162" cy="88" r="10" fill="#ef4444" stroke="#0d1520" stroke-width="2.5"/>
+              <line x1="162" y1="88" x2="162" y2="102" stroke="#ef4444" stroke-width="3"/>
+              <circle cx="162" cy="104" r="3" fill="#ef4444"/>
+            </svg>
+          </div>
+
+          <div class="phone-status">
+            <span class="phone-time">9:41</span>
+            <div class="phone-icons">
+              <div class="phone-dot"></div>
+              <div class="phone-dot"></div>
+              <div class="phone-dot"></div>
+            </div>
+          </div>
+
+          <div class="floating-pill">
+            <div class="ps"><span class="ps-l">DIST</span><span class="ps-v">42.3 km</span></div>
+            <div class="pd"></div>
+            <div class="ps"><span class="ps-l">ETA</span><span class="ps-v">52 min</span></div>
+            <div class="pd"></div>
+            <div class="ps"><span class="ps-l">STOPS</span><span class="ps-vg">1 ⚡</span></div>
+          </div>
+
+          <div class="bottom-panel">
+            <div class="drag-handle"></div>
+            <div class="field">
+              <div class="field-dot" style="background:#3b82f6"></div>
+              <span class="field-text">Waterloo Station, London</span>
+            </div>
+            <div class="field">
+              <div class="field-dot" style="background:#ef4444"></div>
+              <span class="field-text">The British Museum, London</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 19 19" fill="none">
+          <path d="M9.5 2.5l2.1 5.2 5.4-.1-4.4 3.3 1.7 5.2-4.8-3.4-4.8 3.4 1.7-5.2L2 7.6l5.4.1z" stroke="#3b82f6" stroke-width="1.4" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="feat-title">Smart EV routing</div>
+      <div class="feat-desc">Finds the fastest route with charging stops perfectly matched to your battery range.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 19 19" fill="none">
+          <circle cx="9.5" cy="9.5" r="7" stroke="#10b981" stroke-width="1.4"/>
+          <path d="M9.5 5.5v4l2.8 2.8" stroke="#10b981" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="feat-title">Live ETA updates</div>
+      <div class="feat-desc">Traffic-aware timing that recalculates in real time as conditions change ahead.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 19 19" fill="none">
+          <circle cx="9.5" cy="9.5" r="7" stroke="#3b82f6" stroke-width="1.4"/>
+          <path d="M9.5 3v13M3 9.5h13" stroke="#93c5fd" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="feat-title">OpenStreetMap</div>
+      <div class="feat-desc">Always-updated maps powered by OpenStreetMap and OpenRouteService.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 19 19" fill="none">
+          <rect x="3" y="3" width="13" height="13" rx="3" stroke="#3b82f6" stroke-width="1.4"/>
+          <path d="M7 9.5l2 2 3-3" stroke="#10b981" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="feat-title">Vehicle profiles</div>
+      <div class="feat-desc">Pre-configured profiles for popular EV models to calculate accurate range estimates.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 19 19" fill="none">
+          <circle cx="9.5" cy="8" r="3.5" stroke="#3b82f6" stroke-width="1.4"/>
+          <path d="M4 17c0-3.04 2.46-5.5 5.5-5.5S15 13.96 15 17" stroke="#3b82f6" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="feat-title">GPS auto-locate</div>
+      <div class="feat-desc">Automatically sets your current location as the origin using device GPS.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 19 19" fill="none">
+          <path d="M3 9.5h13M9.5 3l6.5 6.5-6.5 6.5" stroke="#3b82f6" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="feat-title">One-tap directions</div>
+      <div class="feat-desc">Full route planning with charging stop details delivered in a single tap.</div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>&copy; 2026 SmartRoute. All rights reserved.</span>
+    <span>Built with Flutter &middot; OpenRouteService API</span>
+  </footer>
+
+</body>
+</html>
